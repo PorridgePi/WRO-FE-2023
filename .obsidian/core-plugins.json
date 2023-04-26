@@ -14,9 +14,8 @@
   "command-palette",
   "slash-command",
   "editor-status",
-  "bookmarks",
+  "starred",
   "outline",
   "word-count",
-  "starred",
   "file-recovery"
 ]
