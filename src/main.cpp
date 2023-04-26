@@ -21,7 +21,7 @@ Lidar lidarRight(Wire, 0x12);
 
 float speed = 0, turnRatio = 0;
 
-int currentCase = 0, turnCase = -1;
+int caseMain = 0, case1 = -1;
 int encoderCount = 0;
 float encoderDistance = 0;
 
@@ -139,7 +139,7 @@ void loop() {
     speed = SPEED;
     static int sideCount = 0;
 
-    switch (currentCase) {
+    switch (caseMain) {
         case 0: { // stop
             speed = 0;
             turnRatio = 0;
@@ -152,39 +152,39 @@ void loop() {
                 initialDistLeft = distLeft;
                 initialDistRight = distRight;
                 
-                turnCase = -1;
-                currentCase = 1;
+                case1 = -1;
+                caseMain = 1;
             }
             break;
         } case 1: { // first straight lane
             speed = 0;
 
-            DPRINT(turnCase);
-            switch (turnCase) {
+            DPRINT(case1);
+            switch (case1) {
                 case -1: { // determine case
                     int lidarDiff = distLeftCorr - distRightCorr;
                     if (distLeftCorr + distRightCorr <= 60 - LIDAR_FRONT_SPACING + 15) { // NARROW LANE
                         // NARROW LANE
                         if (abs(lidarDiff) < 10) { // centred
                             EPRINT("NARROW CENTRE ZONE");
-                            turnCase = 0;
+                            case1 = 0;
                         } else if (lidarDiff > 0) { // right is closer
                             EPRINT("NARROW RIGHT ZONE"); // narrow left turn
-                            turnCase = 100;
+                            case1 = 100;
                         } else { // left is closer
                             EPRINT("NARROW LEFT ZONE"); // narrow right turn
-                            turnCase = 110;
+                            case1 = 110;
                         }
                     } else { // WIDE LANE
                         if (abs(lidarDiff) < 10) { // centred
                             EPRINT("WIDE CENTRE ZONE");
-                            turnCase = 0;
+                            case1 = 0;
                         } else if (lidarDiff > 0) { // right is closer
                             EPRINT("WIDE RIGHT ZONE"); // wide left turn
-                            turnCase = 200;
+                            case1 = 200;
                         } else { // left is closer
                             EPRINT("WIDE LEFT ZONE"); // wide right turn
-                            turnCase = 210;
+                            case1 = 210;
                         }
                     }
                     break;
@@ -194,12 +194,12 @@ void loop() {
 
                     if (distRightCorr - distLeftCorr > 100) { // left is closer, turn right
                         isClockwise = true;
-                        currentCase = 4;
-                        currentCase = 0;
+                        caseMain = 4;
+                        caseMain = 0;
                     } else if (distLeftCorr - distRightCorr > 100) { // right is closer, turn left
                         isClockwise = false;
-                        currentCase = 3;
-                        currentCase = 0;
+                        caseMain = 3;
+                        caseMain = 0;
                     }
                     break;
                 } case 100: { // narrow left turn
@@ -207,37 +207,36 @@ void loop() {
                     turn(-60);
                     moveStraight(7);
                     turn(60);
-                    turnCase = 0;
+                    case1 = 0;
                     break;
                 } case 110: { // narrow right turn
                     speed = SPEED;
                     turn(60);
                     moveStraight(7);
                     turn(-60);
-                    turnCase = 0;
+                    case1 = 0;
                     break;
                 } case 200: { // wide left turn
                     speed = SPEED;
                     turn(-60);
                     moveStraight(15);
                     turn(60);
-                    turnCase = 0;
+                    case1 = 0;
                     break;
                 } case 210: { // wide right turn
                     speed = SPEED;
                     turn(60);
                     moveStraight(15);
                     turn(-60);
-                    turnCase = 0;
+                    case1 = 0;
                     break;
                 }
             }
 
             break;
-        } case 2: { // moving straight
+        } case 2: { // corner turn
             const int MIN_DISTANCE = 10;
             int innerDist = isClockwise ? distRightCorr : distLeftCorr;
-
 
             break;
         } case 3: {
@@ -247,12 +246,12 @@ void loop() {
         }
     }
 
-    if (button.isPressed() && currentCase != 0) {
-        currentCase = 0;
+    if (button.isPressed() && caseMain != 0) {
+        caseMain = 0;
     }
 
     // EPRINT(imu.readAngle());
-    DPRINT(currentCase);
+    DPRINT(caseMain);
 
     // DPRINT(distFront);
     // DPRINT(distFrontCorr);
