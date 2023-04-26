@@ -240,43 +240,9 @@ void loop() {
 
 
             break;
-        } case 3: { // turning right 90 degrees
-            static bool isTurning = false;
-            if (isTurning == false) {
-                relativeAngleTare(90);
-                isTurning = true;
-            } else {
-                turnRatio = -1 * constrain(ANGLE_360_TO_180(relativeAngle)/30, -1, 1);
-                speed = SPEED;
-                if (abs(ANGLE_360_TO_180(relativeAngle)) < 3) {
-                    isTurning = false;
-                    sideCount++;
-                    if (sideCount < 4) {
-                        currentCase = 2;
-                    } else {
-                        currentCase = 0;
-                    }
-                }
-            }
+        } case 3: {
             break;
-        } case 4: { // turning left 90 degrees
-            static bool isTurning = false;
-            if (isTurning == false) {
-                relativeAngleTare(-90);
-                isTurning = true;
-            } else {
-                turnRatio = -1 * constrain(ANGLE_360_TO_180(relativeAngle)/30, -1, 1);
-                speed = SPEED;
-                if (abs(ANGLE_360_TO_180(relativeAngle)) < 3) {
-                    isTurning = false;
-                    sideCount++;
-                    if (sideCount < 4) {
-                        currentCase = 2;
-                    } else {
-                        currentCase = 0;
-                    }
-                }
-            }
+        } case 4: {
             break;
         }
     }
