@@ -18,19 +18,8 @@
                 "source": false
               }
             }
-          },
-          {
-            "id": "2daec890596b562a",
-            "type": "leaf",
-            "state": {
-              "type": "release-notes",
-              "state": {
-                "currentVersion": "1.2.6"
-              }
-            }
           }
-        ],
-        "currentTab": 1
+        ]
       }
     ],
     "direction": "vertical"
@@ -175,7 +164,7 @@
       "obsidian-excalidraw-plugin:Create new drawing": false
     }
   },
-  "active": "2daec890596b562a",
+  "active": "b162c129c006266e",
   "lastOpenFiles": [
     "RoboCup.md",
     "2023-04-26.md",
