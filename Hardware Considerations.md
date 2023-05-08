@@ -26,4 +26,9 @@
 - Camera
 - Optical Flow
 
-# 
+# Orientation
+- IMU
+- Compass
+
+# Notes
+- Ideally only camera for SLAM would yield the smallest robot
