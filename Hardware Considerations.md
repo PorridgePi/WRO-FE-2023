@@ -7,3 +7,23 @@
 		- larger the diameter, moment of inertia is higher, more torque required
 	- distance travelled per revolution
 - Mass
+
+# Motor
+- Encoder
+
+# Motor Driver
+- ???????
+
+# Camera
+1. [[Raspberry Pi Camera]] with [[OpenCV]]
+2. OpenMV but we no have
+3. Pixy
+
+- Dual/Stereo Cameras
+
+# Ranging/Localisation
+- LiDAR
+- Camera
+- Optical Flow
+
+# 
