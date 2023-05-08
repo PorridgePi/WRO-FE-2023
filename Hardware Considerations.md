@@ -1,6 +1,6 @@
 # Wheels
 - Wide v.s. Thin
-	- affect surface area in contact with gour
+	- affect surface area in contact with ground, affecting how rubber gets squished
 - Size (i.e. diameter) affects
 	- size of cavity to allow steering
 	- torque
