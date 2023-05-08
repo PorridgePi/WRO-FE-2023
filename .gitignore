@@ -1,2 +1,5 @@
 # macOS
 .DS_Store
+
+# Obsidian
+.obsidian/workspace.json
