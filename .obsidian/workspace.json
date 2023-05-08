@@ -4,11 +4,11 @@
     "type": "split",
     "children": [
       {
-        "id": "bb6c33da476de1e2",
+        "id": "6176e5fa4f6ddf3b",
         "type": "tabs",
         "children": [
           {
-            "id": "9efba0bac361cf4e",
+            "id": "7be7880f560c1487",
             "type": "leaf",
             "state": {
               "type": "markdown",
@@ -77,8 +77,7 @@
       }
     ],
     "direction": "horizontal",
-    "width": 300,
-    "collapsed": true
+    "width": 300
   },
   "right": {
     "id": "756a3daf9f55ad6a",
@@ -165,18 +164,18 @@
       "obsidian-excalidraw-plugin:Create new drawing": false
     }
   },
-  "active": "9efba0bac361cf4e",
+  "active": "7be7880f560c1487",
   "lastOpenFiles": [
-    "SCR-20230508-ofqp.png",
-    "2023-05-08.md",
-    "2023-05-03.md",
+    "2023-04-26.md",
     "WRO.md",
     "WRO-FUTURE-ENGINEERS-RULES.pdf",
+    "SCR-20230508-ofqp.png",
+    "RoboCup.md",
+    "Raspberry Pi.md",
     "Raspberry Pi Camera.md",
     "OpenCV.md",
     "Ackermann Steering.md",
-    "RoboCup.md",
-    "Raspberry Pi.md",
-    "2023-04-26.md"
+    "2023-05-08.md",
+    "2023-05-03.md"
   ]
 }
