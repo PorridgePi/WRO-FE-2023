@@ -1,5 +1,5 @@
 {
-  "commitMessage": "update: {{date}}",
+  "commitMessage": "update({{hostname}}): {{date}}",
   "commitDateFormat": "YYYYMMDD-HH:mm",
   "autoSaveInterval": 5,
   "autoPushInterval": 0,
