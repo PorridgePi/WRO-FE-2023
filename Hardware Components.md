@@ -1,5 +1,7 @@
 - [YFROBOT 4WD chassis steered by a servo motor – yfrobot](https://yfrobot.com/products/steering-gear-robot)
-
+	- stall current
+		- @8.4v - 4A
+		- at 12V - 6A
 - Motor Driver
 	- [SparkFun Motor Driver - Dual TB6612FNG (1A)](https://www.sparkfun.com/products/14451)
 - Motor
