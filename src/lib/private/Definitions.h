@@ -1,6 +1,8 @@
 #ifndef DEFINITIONS_H
 #define DEFINITIONS_H
 
+#ifndef IS_PROTOBOARD
+
 #define PIN_WIRE0_SCL 13
 #define PIN_WIRE0_SDA 12
 
@@ -15,16 +17,18 @@
 
 #define PIN_SERVO 22
 
-// Below for Protoboard
+#else // Below for Protoboard
 
-// #define PIN_MOTOR_A 17
-// #define PIN_MOTOR_B 16
-// #define PIN_MOTOR_PWM 21
-// #define PIN_MOTOR_EN 27
+#define PIN_MOTOR_A 17
+#define PIN_MOTOR_B 16
+#define PIN_MOTOR_PWM 21
+#define PIN_MOTOR_EN 27
 
-// #define PIN_ENCODER_A 15
-// #define PIN_ENCODER_B 14
+#define PIN_ENCODER_A 15
+#define PIN_ENCODER_B 14
 
-// #define PIN_SERVO 22
+#define PIN_SERVO 22
+
+#endif
 
 #endif
