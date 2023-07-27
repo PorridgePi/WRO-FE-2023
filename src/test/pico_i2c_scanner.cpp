@@ -4,9 +4,6 @@
 #include <Definitions.h>
 #include <Wire.h>
 
-// Select which Wire to scan
-TwoWire &_wire = Wire;
-
 void setup() {
     Wire.setSCL(PIN_WIRE0_SCL);
     Wire.setSDA(PIN_WIRE0_SDA);
@@ -24,6 +21,16 @@ void setup() {
 }
 
 void loop() {
+    static bool isWire0 = true;
+
+    TwoWire &_wire = isWire0 ? Wire : Wire1;
+    if (isWire0) {
+        Serial.println("Wire0");
+        isWire0 = false;
+    } else {
+        Serial.println("Wire1");
+        isWire0 = true;
+    }
     byte error, address;
     int  nDevices;
 
@@ -57,5 +64,5 @@ void loop() {
     else
         Serial.println("done\n");
 
-    delay(5000); // wait 5 seconds for next scan
+    delay(1000); // wait 5 seconds for next scan
 }
