@@ -24,6 +24,11 @@
 //// LED blink macro ////
 // continuous async blink LED to indicate program is running and Pico has not hang
 void blinkLED(int interval = 50) {
+    static bool isInitialized = false;
+    if (!isInitialized) {
+        pinMode(PIN_LED, OUTPUT);
+        isInitialized = true;
+    }
     static unsigned long lastMillis = 0;     // last time LED was toggled
     static bool          isLedOn   = false; // true = LED on, false = LED off
     if (millis() - lastMillis >= interval) {
