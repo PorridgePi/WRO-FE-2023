@@ -3,6 +3,8 @@
 
 #ifndef IS_PROTOBOARD
 
+#define WHEEL_DIAMETER 6.5 // cm
+
 #define PIN_WIRE0_SCL 13
 #define PIN_WIRE0_SDA 12
 
