@@ -3,7 +3,7 @@
 #include <Definitions.h>
 #include <Button.h>
 
-Button button(8, 9);
+Button button(PIN_BUTTON_A, PIN_BUTTON_B);
 
 void setup() {
     Serial.begin(115200);
