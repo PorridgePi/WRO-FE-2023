@@ -12,6 +12,9 @@
 #define PIN_MOTOR_A 18
 #define PIN_MOTOR_B 19
 
+#define PIN_BUTTON_A 8
+#define PIN_BUTTON_B 9
+
 #define PIN_ENCODER_A 20
 #define PIN_ENCODER_B 21
 
