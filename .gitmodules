@@ -1,0 +1,3 @@
+[submodule "src/lib/public/Mecha_QMC5883L"]
+	path = src/lib/public/Mecha_QMC5883L
+	url = https://github.com/PorridgePi/Mecha_QMC5883L
