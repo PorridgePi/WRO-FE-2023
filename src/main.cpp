@@ -16,7 +16,8 @@ MechaQMC5883 imu(Wire, -360, -354, 0.868168186471, -31.5296782652);
 float speed = 0, turnRatio = 0;
 int currentCase = 0;
 
-void setup() {
+void setupComponents() {
+    // I2C for LiDAR and IMU
     Wire.setSCL(PIN_WIRE0_SCL);
     Wire.setSDA(PIN_WIRE0_SDA);
     Wire.setTimeout(1); // set timeout to 1 ms
@@ -25,9 +26,17 @@ void setup() {
     Wire1.setSDA(PIN_WIRE1_SDA);
     Wire1.setTimeout(1); // set timeout to 1 ms
     Wire1.begin();
+
+    // Servo
     servo.init();
+
+    // IMU
     imu.init();
     imu.tare();
+}
+
+void setup() {
+    setupComponents();
     Serial.begin(115200);
 }
 
