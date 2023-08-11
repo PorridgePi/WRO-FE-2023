@@ -24,7 +24,7 @@ class DriveServo : public Servo{
             } else {
                 pos = _middle;
             }
-            Serial.print(pos);
+
             writeMicroseconds(pos);
         }
     private:
