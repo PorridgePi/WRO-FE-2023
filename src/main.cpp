@@ -28,7 +28,6 @@ Motor motor(PIN_MOTOR_A, PIN_MOTOR_B);
 DriveServo servo(PIN_SERVO);
 MechaQMC5883 imu(Wire, 569.5, 89.5, 0.938978508806, 14.7584706712);
 Lidar frontLidar(Wire, 0x10);
-// Encoder encoder(PIN_ENCODER_A, PIN_ENCODER_B);
 
 float speed = 0, turnRatio = 0;
 int currentCase = 0;
@@ -82,8 +81,6 @@ void setupComponents() {
 }
 
 void update() {
-    // encoder.update();
-    // encoderCount = encoder.read() * DIRECTION;
     encoderCount = ticks * DIRECTION;
 }
 
