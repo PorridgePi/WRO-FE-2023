@@ -7,6 +7,22 @@
 #include <MechaQMC5883.h>
 #include <Lidar.h>
 
+#define DEBUG_PRINT true
+#define DIRECTION -1
+#define SPEED 1
+
+Button button(PIN_BUTTON_A, PIN_BUTTON_B);
+Motor motor(PIN_MOTOR_A, PIN_MOTOR_B);
+DriveServo servo(PIN_SERVO);
+MechaQMC5883 imu(Wire, -6, 54, 1.35644801227, 88.206226017);
+Lidar frontLidar(Wire, 0x10);
+
+float speed = 0, turnRatio = 0;
+float currentAngle = 0;
+int currentCase = 0;
+int encoderCount = 0;
+float encoderDistance = 0;
+float compassZero = 0;
 
 volatile int ticks = 0;
 
@@ -18,42 +34,31 @@ void checkEncoder() {
   }
 }
 
+void compassTare() {
+    compassZero = imu.readAngle();
+}
 
-#define DEBUG_PRINT true
-#define DIRECTION -1
-#define SPEED 0.5
-
-Button button(PIN_BUTTON_A, PIN_BUTTON_B);
-Motor motor(PIN_MOTOR_A, PIN_MOTOR_B);
-DriveServo servo(PIN_SERVO);
-MechaQMC5883 imu(Wire, 569.5, 89.5, 0.938978508806, 14.7584706712);
-Lidar frontLidar(Wire, 0x10);
-
-float speed = 0, turnRatio = 0;
-int currentCase = 0;
-int encoderCount = 0;
 
 bool turn(float angle) {
     static float targetAngle = -1;
     if (targetAngle == -1) {
-        targetAngle = LIM_ANGLE(imu.readAngle() + 90);
+        targetAngle = LIM_ANGLE(currentAngle + angle);
     }
 
-    float currentAngle = imu.readAngle();
+    float angleDiff = DELTA_ANGLE(currentAngle, targetAngle);
 
-    float turnAngle = ANGLE_360_TO_180(LIM_ANGLE(targetAngle - currentAngle));
+    DPRINT(angleDiff);
+    DPRINT(targetAngle);
+    // DPRINT(turnRatio);
 
-    DPRINT(turnAngle);
-
-    if (turnAngle > -1) {
-        turnRatio = turnAngle > 0 ? 1 : -1;
+    if (abs(angleDiff) > 3) {
+        turnRatio = -1 * constrain(angleDiff / 30, -1, 1);
         speed = SPEED;
-        DPRINT(currentAngle);
-        DPRINT(targetAngle);
-        DPRINT(turnRatio);
         return false;
     } else {
         targetAngle = -1;
+        turnRatio = 0;
+        speed = SPEED;
         return true;
     }
 }
@@ -81,7 +86,9 @@ void setupComponents() {
 }
 
 void update() {
-    encoderCount = ticks * DIRECTION;
+    encoderCount = ticks * -1 * DIRECTION;
+    encoderDistance = encoderCount / 4.0f / 360.0f * PI * WHEEL_DIAMETER;
+    currentAngle = LIM_ANGLE(imu.readAngle() - compassZero);
 }
 
 void setup() {
@@ -100,37 +107,68 @@ void loop() {
         speed = 0;
         turnRatio = 0;
         sideCount = 0;
+        compassTare();
         if (button.isPressed()) {
             currentCase = 1;
         }
         break;
-    case 1:
+    case 1: // moving straight
+        digitalWrite(PIN_LED, HIGH);
         speed = SPEED;
         turnRatio = 0;
-        if (frontLidar.read() < 40) {
-            currentCase = 2;
+        // if (frontLidar.read() < 40) {
+            // currentCase = 2;
+        // }
+        static int targetDistance = -1;
+        if (targetDistance == -1) {
+            targetDistance = encoderDistance + 200;
+        } else {
+            if (targetDistance - encoderDistance < 0) {
+                currentCase = 2;
+                targetDistance = -1;
+            }
         }
+
+        turnRatio = -1 * constrain(ANGLE_360_TO_180(currentAngle)/30, -1, 1);
         break;
-    case 2:
-        if (turn(90)) {
-            sideCount++;
-            if (sideCount < 4) {
-                currentCase = 1;
-            } else {
-                currentCase = 0;
+    case 2: // turning right 90 degrees
+        // if (turn(90)) {
+        //     sideCount++;
+        //     if (sideCount < 4) {
+        //         currentCase = 1;
+        //     } else {
+        //         currentCase = 0;
+        //     }
+        // }
+        static bool isTurning = false;
+        if (isTurning == false) {
+            compassZero = imu.readAngle() + 90;
+            isTurning = true;
+        } else {
+            turnRatio = -1 * constrain(ANGLE_360_TO_180(currentAngle)/30, -1, 1);
+            speed = SPEED;
+            if (abs(ANGLE_360_TO_180(currentAngle)) < 3) {
+                isTurning = false;
+                sideCount++;
+                if (sideCount < 4) {
+                    currentCase = 1;
+                } else {
+                    currentCase = 0;
+                }
             }
         }
         break;
     }
 
     DPRINT(currentCase);
-    DPRINT(frontLidar.read());
+    // DPRINT(frontLidar.read());
+
+    DPRINT(currentAngle);
+    // DPRINT(speed);
+    // DPRINT(turnRatio);
 
     DPRINT(encoderCount);
-
-    DPRINT(imu.readAngle());
-    DPRINT(speed);
-    DPRINT(turnRatio);
+    DPRINT(encoderDistance);
 
     Serial.println();
 
