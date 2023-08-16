@@ -15,6 +15,8 @@
 // Convert angle from 0 to 360 to -180 to 180
 #define ANGLE_360_TO_180(angle) (angle > 180 ? angle - 360 : angle)
 
+// Calculate the smallest difference between two angles
+#define DELTA_ANGLE(x, y) (min(360 - abs(x - y), abs(x - y)) * (x > y ? 1 : -1))
 
 //// Debug print macros ////
 #define DPRINT(x) if (DEBUG_PRINT) { Serial.print(#x); Serial.print(": "); Serial.print(x); Serial.print('\t'); }
