@@ -6,8 +6,8 @@
 
 // Use in combination with https://www.desmos.com/calculator/uayhalobk5
 
-MechaQMC5883 imu(Wire, -360, -354, 0.868168186471, -31.5296782652);
-// MechaQMC5883 imu(Wire, 0, 0, 0, 0);
+// MechaQMC5883 imu(Wire, 569.5, 89.5, 0.938978508806, 14.7584706712);
+MechaQMC5883 imu(Wire, 0, 0, 0, 0);
 
 void setup() {
     Serial.begin(9600);
