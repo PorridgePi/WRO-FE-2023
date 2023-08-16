@@ -2,30 +2,23 @@
 #include <CommonUtils.h>
 #include <Definitions.h>
 
-int counter = 0;
-int aState;
-int aLastState;
+volatile int ticks = 0;
+
+void checkEncoder() {
+  if (digitalRead(PIN_ENCODER_A) == digitalRead(PIN_ENCODER_B)) {
+    ticks++;
+  } else {
+    ticks--;
+  }
+}
 
 void setup() {
-    pinMode(PIN_LED, OUTPUT);
-    pinMode(PIN_ENCODER_A, INPUT);
-    pinMode(PIN_ENCODER_B, INPUT);
-    aLastState = digitalRead(PIN_ENCODER_A);
-    Serial.begin(115200);
+  Serial.begin(9600);
+  attachInterrupt(digitalPinToInterrupt(PIN_ENCODER_A), checkEncoder, CHANGE);
 }
 
 void loop() {
-    aState = digitalRead(PIN_ENCODER_A);
-    if (aState != aLastState) {                     // if previous and current states of outputA differ, then there has been a pulse
-        if (digitalRead(PIN_ENCODER_B) != aState) { // if outputB state differs from outputA, then encoder is rotating clockwise
-            counter++;
-        } else {
-            counter--;
-        }
-        Serial.print("Counter: ");
-        Serial.println(counter);
-    }
-    aLastState = aState;
+  Serial.println(ticks);
 }
 
 void loop1() {
