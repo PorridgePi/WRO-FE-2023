@@ -20,6 +20,9 @@
 #define PIN_ENCODER_A 20
 #define PIN_ENCODER_B 21
 
+#define PIN_SERIAL1_TX 0
+#define PIN_SERIAL1_RX 1
+
 #define PIN_SERVO 22
 
 #else // Below for Protoboard
