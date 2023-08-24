@@ -7,14 +7,12 @@
 			1. The motor came with a metal bracket which was used to attach it.
 			2. Its relatively low profile allowed it to be mounted lower down without taking up too much vertical space to improve stability.
 			3. **INSERT PICTURE OF MOTOR IN MOUNT**
-		3. ~~Possible Alternatives~~
-			1. ~~Joinmax geared motors were also considered but deemed unsuitable as it had a significantly higher current draw, poor performance at low voltages and lacked an encoder.~~
 		4. The chassis was designed to use articulated steering, which allowed for larger steering angles while keeping the steering mechanism relatively simple. ***PICTURE OF ARTICULATED VS NORMAL STEERING***
 		5. The vehicle has single servo rotating the steering axle through a single shaft, as opposed to more conventional steering geometries with multiple linkages and pivots, cutting down on complexity.
-		6. The steering axle was designed to be as close as possible to the drive axle to minmise the turning radius, given that:
+		6. The steering axle was designed to be as close as possible to the drive axle to minimise the turning radius, while allowing sufficient space for the steering wheels to rotate given that:
 		   $\text{Turn radius} = D\tan({90\degree-\theta\degree})$
 		    Where $D$ is the distance between the steering and driving axle, and $\theta$ is the steering angle.
-		7. 
+		7. The baseplate, upper plate, and PCB were designed to be connected via M3 standoffs, which allowed for flexibility in adjusting the height, and made swapping components easier.
 		8. All the heavy components like the motor and battery were mounted as low as possible to improve stability allowing for faster speeds and tighter turning if needed.
 
 3. 
