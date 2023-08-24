@@ -16,12 +16,15 @@
 #define ANGLE_360_TO_180(angle) (angle > 180 ? angle - 360 : angle)
 
 // Calculate the smallest difference between two angles
-#define DELTA_ANGLE(x, y) (min(360 - abs(x - y), abs(x - y)) * (x > y ? 1 : -1))
+#define DELTA_ANGLE(x, y) (LIM_ANGLE(ANGLE_360_TO_180(y - x)))
 
 //// Debug print macros ////
 #define DPRINT(x) if (DEBUG_PRINT) { Serial.print(#x); Serial.print(": "); Serial.print(x); Serial.print('\t'); }
 #define EPRINT(x) if (DEBUG_PRINT) { Serial.print(x); Serial.print('\t'); }
 
+//// Run Once macro ////
+// Run a block of code once
+#define RUN_ONCE(code) { static bool isRun = false; if (!isRun) { code; isRun = true; } }
 
 //// LED blink macro ////
 // continuous async blink LED to indicate program is running and Pico has not hang
