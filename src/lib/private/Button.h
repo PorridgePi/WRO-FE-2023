@@ -12,15 +12,23 @@ class Button {
             }
         }
 
-        bool isPressed() {
+        bool isPressed(int minIntervalMillis = 250) {
             if (_pinB != -1) { // pinB present, write LOW for GND
                 digitalWrite(_pinB, LOW);
             }
-            return digitalRead(_pinA) == LOW;
+
+            bool isPressed = digitalRead(_pinA) == LOW;
+            if (isPressed && (millis() - _lastButtonPressMillis) > minIntervalMillis) {
+                _lastButtonPressMillis = millis();
+                return true;
+            } else {
+                return false;
+            }
         }
 
     private:
         int _pinA, _pinB;
+        unsigned long _lastButtonPressMillis = millis();
 };
 
 #endif
