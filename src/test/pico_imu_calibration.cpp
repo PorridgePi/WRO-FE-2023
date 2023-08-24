@@ -4,9 +4,9 @@
 #include <MechaQMC5883.h>
 #include <Wire.h>
 
-// Use in combination with https://www.desmos.com/calculator/uayhalobk5
+// Use in combination with https://www.desmos.com/calculator/jvlm9fmemt
 
-// MechaQMC5883 imu(Wire, -6, 54, 1.35644801227, 88.206226017);
+// MechaQMC5883 imu(Wire, 262.5, 82.5, 1.35437467403, 87.6595133393);
 MechaQMC5883 imu(Wire, 0, 0, 0, 0);
 
 void setup() {
@@ -28,7 +28,7 @@ void setup() {
 void loop() {
     imu.printRaw();
     // Serial.println(imu.readAngle());
-    delay(5);
+    delay(10);
 }
 
 void loop1() {
