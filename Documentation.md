@@ -9,6 +9,7 @@
 	8. The baseplate, upper plate, and PCB were designed to be connected via M3 standoffs, which allowed for flexibility in adjusting the height, and made swapping components easier.
 2. Power and Sense
 	1. The vehicle is powered off a single 3-cell Lithium Polymer (LiPo) battery, which allows for high peak current draw in excess of 10A and is easy to design around, given its rectangular shape.
-	2. Power passes through a 5V regulator before 
+	2. Power passes through a 5V regulator before being distributed to the servo, sensors and Raspberry Pi Pico used as a microcontroller.
+	3. Front and side facing LiDARs are used
 3. 
 	
