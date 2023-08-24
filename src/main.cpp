@@ -14,20 +14,28 @@
 Button button(PIN_BUTTON_A, PIN_BUTTON_B);
 Motor motor(PIN_MOTOR_A, PIN_MOTOR_B);
 DriveServo servo(PIN_SERVO);
-MechaQMC5883 imu(Wire, -6, 54, 1.35644801227, 88.206226017);
+MechaQMC5883 imu(Wire, 262.5, 82.5, 1.35437467403, 87.6595133393);
 Lidar lidarFront(Wire1, 0x10);
 Lidar lidarLeft(Wire1, 0x11);
 Lidar lidarRight(Wire, 0x12);
 
 float speed = 0, turnRatio = 0;
-float currentAngle = 0;
-int currentCase = 0;
+
+int currentCase = 0, turnCase = -1;
 int encoderCount = 0;
 float encoderDistance = 0;
-float compassZero = 0;
+
 float distLeft = 0, distRight = 0, distFront = 0;
 float distLeftCorr = 0, distRightCorr = 0, distFrontCorr = 0;
 volatile int ticks = 0;
+
+
+int initialDistLeft = 0, initialDistRight = 0, initialDistFront = 0;
+
+float trueAngle = 0, trueAngleZeroError = 0; // relative to the start i.e. 0 <= x < 360
+float relativeAngle = 0, relativeAngleZeroError = 0; // relative to each side i.e. 0 <= x < 90
+
+bool isClockwise = true; // clockwise -> turn right, anticlockwise -> turn left
 
 void checkEncoder() {
   if (digitalRead(PIN_ENCODER_A) == digitalRead(PIN_ENCODER_B)) {
@@ -37,32 +45,64 @@ void checkEncoder() {
   }
 }
 
-void compassTare(float diff = 0) {
-    compassZero = LIM_ANGLE(imu.readAngle() + diff);
+void correctToRelativeZero() {
+    turnRatio = -1 * constrain(ANGLE_360_TO_180(relativeAngle) / 30, -1, 1);
 }
 
+void relativeAngleTare(float diff = 0) {
+    relativeAngleZeroError = LIM_ANGLE(imu.readAngle() + diff);
+}
 
-bool turn(float angle) {
-    static float targetAngle = -1;
-    if (targetAngle == -1) {
-        targetAngle = LIM_ANGLE(currentAngle + angle);
+void trueAngleZeroTare(float diff = 0) {
+    trueAngleZeroError = LIM_ANGLE(imu.readAngle() + diff);
+}
+
+void update() {
+    encoderCount = ticks * -1 * DIRECTION;
+    encoderDistance = encoderCount / 4.0f / 360.0f * PI * WHEEL_DIAMETER;
+
+    float angle = imu.readAngle();
+    relativeAngle = LIM_ANGLE(angle - relativeAngleZeroError);
+    trueAngle = LIM_ANGLE(angle - trueAngleZeroError);
+
+    distLeft = lidarLeft.read();
+    distRight = lidarRight.read();
+    distFront = lidarFront.read();
+    distLeftCorr = distLeft * cos(RAD(ANGLE_360_TO_180(relativeAngle)));
+    distRightCorr = distRight * cos(RAD(ANGLE_360_TO_180(relativeAngle)));
+    distFrontCorr = distFront * sin(RAD(ANGLE_360_TO_180(relativeAngle)));
+}
+
+void turn(float angle) {
+    float targetAngle = LIM_ANGLE(imu.readAngle() + angle);
+    while (abs(imu.readAngle() - targetAngle) > 1) {
+        float currentAngle = imu.readAngle();
+        turnRatio = constrain(ANGLE_360_TO_180(DELTA_ANGLE(currentAngle, targetAngle))/30.0f, -1, 1);
+        const float minTurnRatio = 0.5;
+        if (abs(turnRatio) < minTurnRatio) {
+            turnRatio = turnRatio > 0 ? minTurnRatio : -1 * minTurnRatio;
+        }
+        EPRINT("turning...");
+        DPRINT(currentAngle);
+        DPRINT(targetAngle);
+        EPRINT(DELTA_ANGLE(currentAngle, targetAngle));
+        Serial.println();
     }
+}
 
-    float angleDiff = DELTA_ANGLE(currentAngle, targetAngle);
-
-    DPRINT(angleDiff);
-    DPRINT(targetAngle);
-    // DPRINT(turnRatio);
-
-    if (abs(angleDiff) > 3) {
-        turnRatio = -1 * constrain(angleDiff / 30, -1, 1);
-        speed = SPEED;
-        return false;
-    } else {
-        targetAngle = -1;
+void moveStraight(float distance, float speed = SPEED) {
+    update();
+    float targetDistance = encoderDistance + distance;
+    while (abs(encoderDistance - targetDistance) > 1) {
+        update();
         turnRatio = 0;
-        speed = SPEED;
-        return true;
+        speed = SPEED * (encoderDistance < targetDistance ? 1 : -1) * DIRECTION;
+
+        EPRINT("moving...");
+        DPRINT(speed);
+        DPRINT(encoderDistance);
+        DPRINT(targetDistance);
+        Serial.println();
     }
 }
 
@@ -88,18 +128,6 @@ void setupComponents() {
     attachInterrupt(digitalPinToInterrupt(PIN_ENCODER_A), checkEncoder, CHANGE);
 }
 
-void update() {
-    encoderCount = ticks * -1 * DIRECTION;
-    encoderDistance = encoderCount / 4.0f / 360.0f * PI * WHEEL_DIAMETER;
-    currentAngle = LIM_ANGLE(imu.readAngle() - compassZero);
-    distLeft = lidarLeft.read();
-    distRight = lidarRight.read();
-    distFront = lidarFront.read();
-    distLeftCorr = distLeft * cos(RAD(ANGLE_360_TO_180(currentAngle)));
-    distRightCorr = distRight * cos(RAD(ANGLE_360_TO_180(currentAngle)));
-    distFrontCorr = distFront * sin(RAD(ANGLE_360_TO_180(currentAngle)));
-}
-
 void setup() {
     setupComponents();
     Serial.begin(115200);
@@ -107,7 +135,7 @@ void setup() {
 
 void loop() {
     update();
-    static float targetAngle = -1;
+
     speed = SPEED;
     static int sideCount = 0;
 
@@ -116,88 +144,134 @@ void loop() {
             speed = 0;
             turnRatio = 0;
             sideCount = 0;
-            compassTare();
+
+            relativeAngleTare();
             if (button.isPressed()) {
+                trueAngleZeroTare();
+                initialDistFront = distFront;
+                initialDistLeft = distLeft;
+                initialDistRight = distRight;
+                
+                turnCase = -1;
                 currentCase = 1;
             }
             break;
-        } case 1: { // moving straight
-            speed = SPEED;
-            turnRatio = 0;
+        } case 1: { // first straight lane
+            speed = 0;
 
-            float ratioLR = (distLeftCorr - distRightCorr) / (distLeftCorr + distRightCorr); // positive if left is closer
-            DPRINT(ratioLR);
-            if (abs(ratioLR) > 0.05) {
-                float maxTurnAngle = 45;
-                float maxTurnRatio = max(maxTurnAngle - abs(ANGLE_360_TO_180(currentAngle)), 0) / maxTurnAngle;
-                
-                ANGLE_360_TO_180(currentAngle);
-                DPRINT(maxTurnRatio);
-                turnRatio = constrain(-1 * ratioLR, -0.5, 0.5) * maxTurnRatio;
-                EPRINT("d");
-                DPRINT(turnRatio)
-            } else {
-                turnRatio = -1 * constrain(ANGLE_360_TO_180(currentAngle)/30, -1, 1);
-            }
+            DPRINT(turnCase);
+            switch (turnCase) {
+                case -1: { // determine case
+                    int lidarDiff = distLeftCorr - distRightCorr;
+                    if (distLeftCorr + distRightCorr <= 60 - LIDAR_FRONT_SPACING + 15) { // NARROW LANE
+                        // NARROW LANE
+                        if (abs(lidarDiff) < 10) { // centred
+                            EPRINT("NARROW CENTRE ZONE");
+                            turnCase = 0;
+                        } else if (lidarDiff > 0) { // right is closer
+                            EPRINT("NARROW RIGHT ZONE"); // narrow left turn
+                            turnCase = 100;
+                        } else { // left is closer
+                            EPRINT("NARROW LEFT ZONE"); // narrow right turn
+                            turnCase = 110;
+                        }
+                    } else { // WIDE LANE
+                        if (abs(lidarDiff) < 10) { // centred
+                            EPRINT("WIDE CENTRE ZONE");
+                            turnCase = 0;
+                        } else if (lidarDiff > 0) { // right is closer
+                            EPRINT("WIDE RIGHT ZONE"); // wide left turn
+                            turnCase = 200;
+                        } else { // left is closer
+                            EPRINT("WIDE LEFT ZONE"); // wide right turn
+                            turnCase = 210;
+                        }
+                    }
+                    break;
+                } case 0: { // move straight until wall
+                    speed = SPEED;
+                    correctToRelativeZero();
 
-            static bool toTurn = false;
-
-            static int targetDistance = -1;
-            if (targetDistance == -1) {
-                targetDistance = encoderDistance + 120;
-            } else {
-                if (targetDistance - encoderDistance < 0) {
-                    toTurn = true;
-                }
-            }
-
-            if (distFrontCorr < 100) {
-                // toTurn = true;
-            }
-
-            if (toTurn) {
-                targetDistance = -1;
-                toTurn = false;
-                if (distLeftCorr + 100 < distRightCorr) {
-                    currentCase = 3;
-                } else if (distRightCorr + 100 < distLeftCorr) {
-                    currentCase = 2;
+                    if (distRightCorr - distLeftCorr > 100) { // left is closer, turn right
+                        isClockwise = true;
+                        currentCase = 4;
+                        currentCase = 0;
+                    } else if (distLeftCorr - distRightCorr > 100) { // right is closer, turn left
+                        isClockwise = false;
+                        currentCase = 3;
+                        currentCase = 0;
+                    }
+                    break;
+                } case 100: { // narrow left turn
+                    speed = SPEED;
+                    turn(-60);
+                    moveStraight(7);
+                    turn(60);
+                    turnCase = 0;
+                    break;
+                } case 110: { // narrow right turn
+                    speed = SPEED;
+                    turn(60);
+                    moveStraight(7);
+                    turn(-60);
+                    turnCase = 0;
+                    break;
+                } case 200: { // wide left turn
+                    speed = SPEED;
+                    turn(-60);
+                    moveStraight(15);
+                    turn(60);
+                    turnCase = 0;
+                    break;
+                } case 210: { // wide right turn
+                    speed = SPEED;
+                    turn(60);
+                    moveStraight(15);
+                    turn(-60);
+                    turnCase = 0;
+                    break;
                 }
             }
 
             break;
-        } case 2: { // turning right 90 degrees
+        } case 2: { // moving straight
+            const int MIN_DISTANCE = 10;
+            int innerDist = isClockwise ? distRightCorr : distLeftCorr;
+
+
+            break;
+        } case 3: { // turning right 90 degrees
             static bool isTurning = false;
             if (isTurning == false) {
-                compassTare(90);
+                relativeAngleTare(90);
                 isTurning = true;
             } else {
-                turnRatio = -1 * constrain(ANGLE_360_TO_180(currentAngle)/30, -1, 1);
+                turnRatio = -1 * constrain(ANGLE_360_TO_180(relativeAngle)/30, -1, 1);
                 speed = SPEED;
-                if (abs(ANGLE_360_TO_180(currentAngle)) < 3) {
+                if (abs(ANGLE_360_TO_180(relativeAngle)) < 3) {
                     isTurning = false;
                     sideCount++;
                     if (sideCount < 4) {
-                        currentCase = 1;
+                        currentCase = 2;
                     } else {
                         currentCase = 0;
                     }
                 }
             }
             break;
-        } case 3: { // turning left 90 degrees
+        } case 4: { // turning left 90 degrees
             static bool isTurning = false;
             if (isTurning == false) {
-                compassTare(-90);
+                relativeAngleTare(-90);
                 isTurning = true;
             } else {
-                turnRatio = -1 * constrain(ANGLE_360_TO_180(currentAngle)/30, -1, 1);
+                turnRatio = -1 * constrain(ANGLE_360_TO_180(relativeAngle)/30, -1, 1);
                 speed = SPEED;
-                if (abs(ANGLE_360_TO_180(currentAngle)) < 3) {
+                if (abs(ANGLE_360_TO_180(relativeAngle)) < 3) {
                     isTurning = false;
                     sideCount++;
                     if (sideCount < 4) {
-                        currentCase = 1;
+                        currentCase = 2;
                     } else {
                         currentCase = 0;
                     }
@@ -207,15 +281,22 @@ void loop() {
         }
     }
 
+    if (button.isPressed() && currentCase != 0) {
+        currentCase = 0;
+    }
+
+    // EPRINT(imu.readAngle());
     DPRINT(currentCase);
-    DPRINT(distFront);
+
+    // DPRINT(distFront);
     // DPRINT(distFrontCorr);
     DPRINT(distLeft);
     // DPRINT(distLeftCorr);
     DPRINT(distRight);
     // DPRINT(distRightCorr);
 
-    DPRINT(currentAngle);
+    // DPRINT(trueAngle);
+    DPRINT(relativeAngle);
     // DPRINT(speed);
     // DPRINT(turnRatio);
 
@@ -223,11 +304,10 @@ void loop() {
     DPRINT(encoderDistance);
 
     Serial.println();
-
-    servo.turn(turnRatio * DIRECTION);
-    motor.setSpeed(speed * DIRECTION);
 }
 
 void loop1() {
-  blinkLED();
+    blinkLED();
+    servo.turn(turnRatio * DIRECTION);
+    motor.setSpeed(speed * DIRECTION);
 }
