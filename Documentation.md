@@ -1,5 +1,7 @@
-## Motors : GM25-12CPR
-1. Encoder with 1440 BPR resolution
-2. Minimal footprint with inline gearbox
+
+
+The GM25-12CPR has a good resolution of 1440 BPR with 
+2. Inline gearbox so minimal footprint
 3. 
+4. 
 	
