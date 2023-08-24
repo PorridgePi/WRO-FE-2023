@@ -25,6 +25,8 @@
 
 #define PIN_SERVO 22
 
+#define LIDAR_FRONT_SPACING 6.5 // cm
+
 #else // Below for Protoboard
 
 #define PIN_MOTOR_A 17
