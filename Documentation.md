@@ -9,9 +9,11 @@
 			3. **INSERT PICTURE OF MOTOR IN MOUNT**
 		3. ~~Possible Alternatives~~
 			1. ~~Joinmax geared motors were also considered but deemed unsuitable as it had a significantly higher current draw, poor performance at low voltages and lacked an encoder.~~
-		4. The chassis was designed to use articulated steering, which allowed for larger steering angles while keeping the steering mechanism relatively simple
+		4. The chassis was designed to use articulated steering, which allowed for larger steering angles while keeping the steering mechanism relatively simple. ***PICTURE OF ARTICULATED VS NORMAL STEERING***
 		5. The vehicle has single servo rotating the steering axle through a single shaft, as opposed to more conventional steering geometries with multiple linkages and pivots, cutting down on complexity.
-		6. All the heavy components like the motor and battery were mounted as low as possible to improve stability allowing for faster speeds and tighter turning if needed.
+		6. The steering axle was designed to be as close as possible to the drive axle to minmise the turning radius, given that:
+		7. $\r = \tan{90-\text{Steering angle}}$
+		8. All the heavy components like the motor and battery were mounted as low as possible to improve stability allowing for faster speeds and tighter turning if needed.
 
 3. 
 4. 
