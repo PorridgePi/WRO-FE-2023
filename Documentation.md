@@ -12,7 +12,9 @@
 		4. The chassis was designed to use articulated steering, which allowed for larger steering angles while keeping the steering mechanism relatively simple. ***PICTURE OF ARTICULATED VS NORMAL STEERING***
 		5. The vehicle has single servo rotating the steering axle through a single shaft, as opposed to more conventional steering geometries with multiple linkages and pivots, cutting down on complexity.
 		6. The steering axle was designed to be as close as possible to the drive axle to minmise the turning radius, given that:
-		7. $\r = \tan{90-\text{Steering angle}}$
+		   $\text{Turn radius} = D\tan({90\degree-\theta\degree})$
+		    Where $D$ is the distance between the steering and driving axle, and $\theta$ is the steering angle.
+		7. 
 		8. All the heavy components like the motor and battery were mounted as low as possible to improve stability allowing for faster speeds and tighter turning if needed.
 
 3. 
