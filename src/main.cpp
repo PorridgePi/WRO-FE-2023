@@ -14,12 +14,12 @@
 Button button(PIN_BUTTON_A, PIN_BUTTON_B);
 Motor motor(PIN_MOTOR_A, PIN_MOTOR_B);
 DriveServo servo(PIN_SERVO);
-MechaQMC5883 imu(Wire, 262.5, 82.5, 1.35437467403, 87.6595133393);
+MechaQMC5883 imu(Wire, -402, 77, 1.3609663142, 88.8973302503);
 Lidar lidarFront(Wire1, 0x10);
 Lidar lidarLeft(Wire1, 0x11);
 Lidar lidarRight(Wire, 0x12);
 
-#define WALL_PRESENT_DISTANCE 60 // if lower than this, wall is present
+#define WALL_PRESENT_DISTANCE 35 // if lower than this, wall is present
 #define WALL_MISSING_DISTANCE 100 // if higher than this, wall is missing
 
 float speed = 0, turnRatio = 0;
@@ -82,12 +82,14 @@ void update() {
     distFront = lidarFront.read();
     distLeftCorr = distLeft * cos(RAD(ANGLE_360_TO_180(relativeAngle)));
     distRightCorr = distRight * cos(RAD(ANGLE_360_TO_180(relativeAngle)));
-    distFrontCorr = distFront * sin(RAD(ANGLE_360_TO_180(relativeAngle)));
+    distFrontCorr = distFront * cos(RAD(ANGLE_360_TO_180(relativeAngle)));
 }
 
 void turn(float angle) {
+    digitalWrite(PIN_LED, HIGH);
     float targetAngle = LIM_ANGLE(imu.readAngle() + angle);
     while (abs(imu.readAngle() - targetAngle) > 1) {
+        digitalWrite(PIN_LED, HIGH);
         float currentAngle = imu.readAngle();
         turnRatio = constrain(ANGLE_360_TO_180(DELTA_ANGLE(currentAngle, targetAngle))/30.0f, -1, 1);
         const float MIN_TURN_RATIO = 0.5;
@@ -100,12 +102,15 @@ void turn(float angle) {
         EPRINT(DELTA_ANGLE(currentAngle, targetAngle));
         Serial.println();
     }
+    digitalWrite(PIN_LED, LOW);
 }
 
 void moveStraight(float distance, float speed = SPEED) {
+    digitalWrite(PIN_LED, HIGH);
     update();
     float targetDistance = encoderDistance + distance;
     while (abs(encoderDistance - targetDistance) > 0.5) {
+        digitalWrite(PIN_LED, HIGH);
         update();
         turnRatio = 0;
         speed = SPEED * (encoderDistance < targetDistance ? 1 : -1) * DIRECTION;
@@ -116,6 +121,7 @@ void moveStraight(float distance, float speed = SPEED) {
         DPRINT(targetDistance);
         Serial.println();
     }
+    digitalWrite(PIN_LED, LOW);
 }
 
 void setupComponents() {
@@ -210,6 +216,7 @@ void loop() {
                         isClockwise = toTurnRight && !toTurnLeft; 
                         case1 = -1;
                         caseMain = 2;
+                        moveStraight(15);
                     }
                     break;
                 } case 100: { // narrow left turn
@@ -246,20 +253,27 @@ void loop() {
             break;
         } case 2: { // corner turn
             static int case2 = -1;
+            static int runCount = 0;
             int innerDist = isClockwise ? distRight : distLeft;
+            int outerDist = isClockwise ? distLeft : distRight;
             DPRINT(innerDist);
             switch (case2) {
                 case -1: { // initiate turn
-                    moveStraight(25);
-                    turn(isClockwise ? 90 : -90);
                     currentSide = POS_MOD(currentSide + (isClockwise ? 1 : -1), 4);
+
+                    turn(currentSide * 90 - (trueAngle + trueAngleZeroError));
                     case2 = 0;
                     break;
                 } case 0: { // move straight until wall detected
-                    if (5 < innerDist && innerDist <= WALL_PRESENT_DISTANCE) { // wall detected, change state // min to prevent false positive
+                    if ((innerDist + outerDist) <= 100) { // wall detected, change state // min to prevent false positive
                         moveStraight(20);
                         case2 = -1; // reset case2
-                        caseMain =  0; // next caseMain
+                        if (runCount == 1) {
+                            caseMain =  3; // next caseMain
+                        } else {
+                            caseMain =  3; // next caseMain
+                        }
+                        runCount++;
                         speed = 0;
                     } else {
                         speed = SPEED;
@@ -281,8 +295,10 @@ void loop() {
                 } case 0: {
                     int innerDist = isClockwise ? distRightCorr : distLeftCorr;
                     if (innerDist > WALL_MISSING_DISTANCE) { // wall missing, change state
+                        moveStraight(15);
+
                         case3 = -1; // reset case3
-                        caseMain = 0; // next caseMain
+                        caseMain = 2; // next caseMain
                     } else { // wall present
                         if (abs(innerDist - MIN_WALL_DISTANCE) <= 1) { // move straight
                             correctToRelativeZero();
