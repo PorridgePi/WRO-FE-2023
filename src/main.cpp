@@ -19,9 +19,13 @@ Lidar lidarFront(Wire1, 0x10);
 Lidar lidarLeft(Wire1, 0x11);
 Lidar lidarRight(Wire, 0x12);
 
+#define WALL_PRESENT_DISTANCE 60 // if lower than this, wall is present
+#define WALL_MISSING_DISTANCE 100 // if higher than this, wall is missing
+
 float speed = 0, turnRatio = 0;
 
-int caseMain = 0, case1 = -1;
+int currentSide = 0; // clockwise, side 0 = heading 0, side 1 = heading 90, side 2 = heading 180, side 3 = heading 270
+int caseMain = 0;
 int encoderCount = 0;
 float encoderDistance = 0;
 
@@ -47,6 +51,14 @@ void checkEncoder() {
 
 void correctToRelativeZero() {
     turnRatio = -1 * constrain(ANGLE_360_TO_180(relativeAngle) / 30, -1, 1);
+    // if (abs(turnRatio) < 0.04) { // 0.04 * 30 = 1.2 degrees
+    //     turnRatio = 0;
+    // } else {
+    //     const float MIN_TURN_RATIO = 0.3;
+    //     if (abs(turnRatio) < MIN_TURN_RATIO) {
+    //         turnRatio = turnRatio > 0 ? MIN_TURN_RATIO : -1 * MIN_TURN_RATIO;
+    //     }
+    // } 
 }
 
 void relativeAngleTare(float diff = 0) {
@@ -78,9 +90,9 @@ void turn(float angle) {
     while (abs(imu.readAngle() - targetAngle) > 1) {
         float currentAngle = imu.readAngle();
         turnRatio = constrain(ANGLE_360_TO_180(DELTA_ANGLE(currentAngle, targetAngle))/30.0f, -1, 1);
-        const float minTurnRatio = 0.5;
-        if (abs(turnRatio) < minTurnRatio) {
-            turnRatio = turnRatio > 0 ? minTurnRatio : -1 * minTurnRatio;
+        const float MIN_TURN_RATIO = 0.5;
+        if (abs(turnRatio) < MIN_TURN_RATIO) {
+            turnRatio = turnRatio > 0 ? MIN_TURN_RATIO : -1 * MIN_TURN_RATIO;
         }
         EPRINT("turning...");
         DPRINT(currentAngle);
@@ -93,7 +105,7 @@ void turn(float angle) {
 void moveStraight(float distance, float speed = SPEED) {
     update();
     float targetDistance = encoderDistance + distance;
-    while (abs(encoderDistance - targetDistance) > 1) {
+    while (abs(encoderDistance - targetDistance) > 0.5) {
         update();
         turnRatio = 0;
         speed = SPEED * (encoderDistance < targetDistance ? 1 : -1) * DIRECTION;
@@ -151,14 +163,15 @@ void loop() {
                 initialDistFront = distFront;
                 initialDistLeft = distLeft;
                 initialDistRight = distRight;
-                
-                case1 = -1;
+
+                currentSide = 0;
                 caseMain = 1;
             }
             break;
         } case 1: { // first straight lane
             speed = 0;
 
+            static int case1 = -1;
             DPRINT(case1);
             switch (case1) {
                 case -1: { // determine case
@@ -191,15 +204,12 @@ void loop() {
                 } case 0: { // move straight until wall
                     speed = SPEED;
                     correctToRelativeZero();
-
-                    if (distRightCorr - distLeftCorr > 100) { // left is closer, turn right
-                        isClockwise = true;
-                        caseMain = 4;
-                        caseMain = 0;
-                    } else if (distLeftCorr - distRightCorr > 100) { // right is closer, turn left
-                        isClockwise = false;
-                        caseMain = 3;
-                        caseMain = 0;
+                    bool toTurnRight = distRightCorr - distLeftCorr > WALL_MISSING_DISTANCE; // left is closer, turn right
+                    bool toTurnLeft = distLeftCorr - distRightCorr > WALL_MISSING_DISTANCE; // right is closer, turn left
+                    if (toTurnLeft || toTurnRight) {
+                        isClockwise = toTurnRight && !toTurnLeft; 
+                        case1 = -1;
+                        caseMain = 2;
                     }
                     break;
                 } case 100: { // narrow left turn
@@ -235,11 +245,69 @@ void loop() {
 
             break;
         } case 2: { // corner turn
-            const int MIN_DISTANCE = 10;
-            int innerDist = isClockwise ? distRightCorr : distLeftCorr;
-
+            static int case2 = -1;
+            int innerDist = isClockwise ? distRight : distLeft;
+            DPRINT(innerDist);
+            switch (case2) {
+                case -1: { // initiate turn
+                    moveStraight(25);
+                    turn(isClockwise ? 90 : -90);
+                    currentSide = POS_MOD(currentSide + (isClockwise ? 1 : -1), 4);
+                    case2 = 0;
+                    break;
+                } case 0: { // move straight until wall detected
+                    if (5 < innerDist && innerDist <= WALL_PRESENT_DISTANCE) { // wall detected, change state // min to prevent false positive
+                        moveStraight(20);
+                        case2 = -1; // reset case2
+                        caseMain =  0; // next caseMain
+                        speed = 0;
+                    } else {
+                        speed = SPEED;
+                        turnRatio = 0;
+                    }
+                    break;
+                }
+            }
             break;
-        } case 3: {
+        } case 3: { // track along inner wall until corner
+            const int MIN_WALL_DISTANCE = 20;
+
+            static int case3 = -1;
+            switch (case3) {
+                case -1: { // ran once
+                    relativeAngleTare(currentSide * 90 - (trueAngle + trueAngleZeroError)); // trueAngle + trueAngleZeroError = imu.readAngle() // DO NOT LIM_ANGLE
+                    case3 = 0;
+                    break;
+                } case 0: {
+                    int innerDist = isClockwise ? distRightCorr : distLeftCorr;
+                    if (innerDist > WALL_MISSING_DISTANCE) { // wall missing, change state
+                        case3 = -1; // reset case3
+                        caseMain = 0; // next caseMain
+                    } else { // wall present
+                        if (abs(innerDist - MIN_WALL_DISTANCE) <= 1) { // move straight
+                            correctToRelativeZero();
+                            EPRINT("move straight");
+                        } else { // correct to wall
+                            speed = SPEED;
+
+                            int distDiff = innerDist - MIN_WALL_DISTANCE;
+                            // -ve -> too close to inner wall (right wall if clockwise, left wall if anticlockwise)
+                            // -> turn left if clockwise, turn right if anticlockwise
+                            // -ve if clockwise, +ve if anticlockwise
+                            // * 1 if clockwise, * -1 if anticlockwise
+
+                            turnRatio = constrain(distDiff / 10.0f, -1, 1) * (isClockwise ? 1 : -1);
+                            EPRINT(turnRatio)
+                            static float MAX_ANGLE = 45;
+                            float turnRatioMaxMultiplier = constrain((MAX_ANGLE - abs(ANGLE_360_TO_180(relativeAngle))) / MAX_ANGLE, 0, 1);
+                            EPRINT(turnRatioMaxMultiplier)
+                            turnRatio *= turnRatioMaxMultiplier;
+                        }
+                    }
+                    break;
+                }
+            }
+            
             break;
         } case 4: {
             break;
@@ -251,16 +319,18 @@ void loop() {
     }
 
     // EPRINT(imu.readAngle());
+    DPRINT(isClockwise);
     DPRINT(caseMain);
+    DPRINT(currentSide);
 
     // DPRINT(distFront);
-    // DPRINT(distFrontCorr);
+    DPRINT(distFrontCorr);
     DPRINT(distLeft);
-    // DPRINT(distLeftCorr);
+    DPRINT(distLeftCorr);
     DPRINT(distRight);
-    // DPRINT(distRightCorr);
+    DPRINT(distRightCorr);
 
-    // DPRINT(trueAngle);
+    DPRINT(trueAngle);
     DPRINT(relativeAngle);
     // DPRINT(speed);
     // DPRINT(turnRatio);
