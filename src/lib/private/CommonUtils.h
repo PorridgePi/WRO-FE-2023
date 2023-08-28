@@ -18,6 +18,10 @@
 // Calculate the smallest difference between two angles
 #define DELTA_ANGLE(x, y) (LIM_ANGLE(ANGLE_360_TO_180(y - x)))
 
+// Positive modulo
+#define POS_MOD(x, y) (x % y + y) % y
+#define POS_FMOD(x, y) fmod(fmod(x, y) + y, y)
+
 //// Debug print macros ////
 #define DPRINT(x) if (DEBUG_PRINT) { Serial.print(#x); Serial.print(": "); Serial.print(x); Serial.print('\t'); }
 #define EPRINT(x) if (DEBUG_PRINT) { Serial.print(x); Serial.print('\t'); }
