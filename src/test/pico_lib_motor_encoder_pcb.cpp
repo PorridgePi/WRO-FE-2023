@@ -5,7 +5,7 @@
 #include <Motor.h>
 #include <Button.h>
 
-Encoder encoder(PIN_ENCODER_A, PIN_ENCODER_B);
+Encoder encoder(PIN_ENCODER_A, PIN_ENCODER_B, 6.5);
 Button button(PIN_BUTTON_A, PIN_BUTTON_B);
 Motor motor(PIN_MOTOR_A, PIN_MOTOR_B);
 
@@ -15,10 +15,8 @@ void setup() {
 
 void loop() {
     float speed;
-    float sumAngle = encoder.read() / 4.0f;
+    float sumAngle = encoder.readCounter() / 4.0f;
     float displacement = sumAngle / 360.0f * 2 * PI * WHEEL_DIAMETER;
-
-    encoder.update();
 
     Serial.print("Angle Sum: ");
     Serial.print(sumAngle);

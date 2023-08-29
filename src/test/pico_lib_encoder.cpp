@@ -3,15 +3,14 @@
 #include <Definitions.h>
 #include <Encoder.h>
 
-Encoder encoder(PIN_ENCODER_A, PIN_ENCODER_B);
+Encoder encoder(PIN_ENCODER_A, PIN_ENCODER_B, 6.5);
 
 void setup() {
     Serial.begin(115200);
 }
 
 void loop() {
-    encoder.update();
-    Serial.println(encoder.read());
+    Serial.println(encoder.readDistance());
 }
 
 void loop1() {
