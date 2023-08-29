@@ -3,17 +3,30 @@
 
 #include <Arduino.h>
 
-class Encoder {
-    public:
-        Encoder(int pinA, int pinB, bool reverseDirection = false, float wheelDiameter, float resolution = 4.0) : _reverseDirection(reverseDirection), _wheelDiameter(wheelDiameter), _resolution(resolution) {
-            // static variables can't be initialized in the constructor
-            _pinA = pinA;
-            _pinB = pinB;
+// Referenced https://stackoverflow.com/questions/73725224/create-encoder-class-with-interrupts-for-stm32-c
 
+class Encoder {
+    protected:
+        static void staticOnInterrupt(void *this_) {
+            ((Encoder *)this_)->onInterrupt();
+        }
+
+        void onInterrupt() {
+            if (digitalRead(_pinA) == digitalRead(_pinB)) {
+                _counter++;
+            } else {
+                _counter--;
+            }
+        }
+
+    public:
+        Encoder(int pinA, int pinB, float wheelDiameter, bool reverseDirection = false, float resolution = 4.0) : _pinA(pinA), _pinB(pinB), _reverseDirection(reverseDirection), _wheelDiameter(wheelDiameter), _resolution(resolution) {
             pinMode(_pinA, INPUT);
             pinMode(_pinB, INPUT);
+        }
 
-            attachInterrupt(digitalPinToInterrupt(_pinA), checkEncoder, CHANGE);
+        void begin() {
+            attachInterruptParam(_pinA, staticOnInterrupt, CHANGE, this);
         }
 
         int readCounter() {
@@ -25,20 +38,12 @@ class Encoder {
         }
 
     private:
-        bool _reverseDirection;
-        float _wheelDiameter;
-        float _resolution;
-        static int _pinA;
-        static int _pinB;
-        volatile static int _counter = 0;
-
-        static void checkEncoder() {
-            if (digitalRead(_pinA) == digitalRead(_pinB)) {
-                _counter++;
-            } else {
-                _counter--;
-            }
-        }
+        const bool _reverseDirection;
+        const float _wheelDiameter;
+        const float _resolution;
+        const int _pinA;
+        const int _pinB;
+        volatile int _counter = 0;
 };
 
 #endif
