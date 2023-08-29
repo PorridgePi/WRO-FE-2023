@@ -326,7 +326,16 @@ void loop() {
             
             break;
         } case 4: {
-            break;
+            static int case4 = -1;
+            switch (case4) {
+                case -1: {
+                    break;
+                } case 0: {
+                    case4 = -1;
+                    caseMain = 0;
+                    break;
+                }
+            }
         }
     }
 
