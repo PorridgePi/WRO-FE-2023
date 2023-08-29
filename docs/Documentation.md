@@ -6,7 +6,8 @@
 	5. The vehicle has single servo rotating the steering axle through a single shaft, as opposed to more conventional steering geometries with multiple linkages and pivots, cutting down on complexity.
 	6. The steering axle was designed to be as close as possible to the drive axle to minimise the turning radius, while allowing sufficient space for the steering wheels to rotate freely.
  
- ![../attachments/Pasted image 20230824165650.png](attachments/Pasted%20image%2020230824165650.png)
+ ![](attachments/Pasted image 20230824165650.png)
+ 
 	8. Given that $\text{Turn radius} \approx D\tan({90\degree-\theta\degree})$, where $D$ is the distance between the steering and driving axle, and $\theta$ is the steering angle, minimising $D$ would be ideal. ***INSERT PICTURE OF ACKERMANN STEERING CRAP***
 	9. The baseplate, upper plate, and PCB were designed to be connected via M3 standoffs, which allowed for flexibility in adjusting the height, and made swapping components easier.
 2. Power and Sense
