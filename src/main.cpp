@@ -6,6 +6,7 @@
 #include <DriveServo.h>
 #include <MechaQMC5883.h>
 #include <Lidar.h>
+#include <Encoder.h>
 
 #define DEBUG_PRINT true
 #define DIRECTION -1
@@ -18,6 +19,7 @@ MechaQMC5883 imu(Wire, -402, 77, 1.3609663142, 88.8973302503);
 Lidar lidarFront(Wire1, 0x10);
 Lidar lidarLeft(Wire1, 0x11);
 Lidar lidarRight(Wire, 0x12);
+Encoder encoder(PIN_ENCODER_A, PIN_ENCODER_B, false, 6.5, 4.0);
 
 #define WALL_PRESENT_DISTANCE 35 // if lower than this, wall is present
 #define WALL_MISSING_DISTANCE 100 // if higher than this, wall is missing
@@ -26,13 +28,10 @@ float speed = 0, turnRatio = 0;
 
 int currentSide = 0; // clockwise, side 0 = heading 0, side 1 = heading 90, side 2 = heading 180, side 3 = heading 270
 int caseMain = 0;
-int encoderCount = 0;
 float encoderDistance = 0;
 
 float distLeft = 0, distRight = 0, distFront = 0;
 float distLeftCorr = 0, distRightCorr = 0, distFrontCorr = 0;
-volatile int ticks = 0;
-
 
 int initialDistLeft = 0, initialDistRight = 0, initialDistFront = 0;
 
@@ -40,14 +39,6 @@ float trueAngle = 0, trueAngleZeroError = 0; // relative to the start i.e. 0 <= 
 float relativeAngle = 0, relativeAngleZeroError = 0; // relative to each side i.e. 0 <= x < 90
 
 bool isClockwise = true; // clockwise -> turn right, anticlockwise -> turn left
-
-void checkEncoder() {
-  if (digitalRead(PIN_ENCODER_A) == digitalRead(PIN_ENCODER_B)) {
-    ticks++;
-  } else {
-    ticks--;
-  }
-}
 
 void correctToRelativeZero() {
     turnRatio = -1 * constrain(ANGLE_360_TO_180(relativeAngle) / 30, -1, 1);
@@ -70,8 +61,7 @@ void trueAngleZeroTare(float diff = 0) {
 }
 
 void update() {
-    encoderCount = ticks * -1 * DIRECTION;
-    encoderDistance = encoderCount / 4.0f / 360.0f * PI * WHEEL_DIAMETER;
+    encoderDistance = encoder.readDistance();
 
     float angle = imu.readAngle();
     relativeAngle = LIM_ANGLE(angle - relativeAngleZeroError);
@@ -141,9 +131,6 @@ void setupComponents() {
     // IMU
     imu.init();
     imu.tare();
-
-    // Encoder
-    attachInterrupt(digitalPinToInterrupt(PIN_ENCODER_A), checkEncoder, CHANGE);
 }
 
 void setup() {
@@ -360,7 +347,6 @@ void loop() {
     // DPRINT(speed);
     // DPRINT(turnRatio);
 
-    // DPRINT(encoderCount);
     DPRINT(encoderDistance);
 
     Serial.println();
