@@ -19,7 +19,7 @@ MechaQMC5883 imu(Wire, -402, 77, 1.3609663142, 88.8973302503);
 Lidar lidarFront(Wire1, 0x10);
 Lidar lidarLeft(Wire1, 0x11);
 Lidar lidarRight(Wire, 0x12);
-Encoder encoder(PIN_ENCODER_A, PIN_ENCODER_B, false, 6.5, 4.0);
+Encoder encoder(PIN_ENCODER_A, PIN_ENCODER_B, 6.5);
 
 #define WALL_PRESENT_DISTANCE 35 // if lower than this, wall is present
 #define WALL_MISSING_DISTANCE 100 // if higher than this, wall is missing
@@ -131,6 +131,8 @@ void setupComponents() {
     // IMU
     imu.init();
     imu.tare();
+    
+    encoder.begin();
 }
 
 void setup() {
