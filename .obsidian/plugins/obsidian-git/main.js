@@ -32171,8 +32171,8 @@ var ObsidianGitSettingsTab = class extends import_obsidian8.PluginSettingTab {
         })
       );
       if (!plugin.settings.setLastSaveToLastCommit)
-        new import_obsidian8.Setting(containerEl).setName(`Auto Backup after file change`).setDesc(
-          `If turned on, do auto ${commitOrBackup} every ${plugin.settings.autoSaveInterval} minutes after last change. This also prevents auto ${commitOrBackup} while editing a file. If turned off, it's independent from the last change.`
+        new import_obsidian8.Setting(containerEl).setName(`Auto Backup after stop editing any file`).setDesc(
+          `Requires the ${commitOrBackup} interval not to be 0. If turned on, do auto ${commitOrBackup} every ${plugin.settings.autoSaveInterval} minutes after stop editing any file. This also prevents auto ${commitOrBackup} while editing a file. If turned off, it's independent from the last change.`
         ).addToggle(
           (toggle) => toggle.setValue(plugin.settings.autoBackupAfterFileChange).onChange((value) => {
             plugin.settings.autoBackupAfterFileChange = value;
@@ -35939,8 +35939,10 @@ var DiffView = class extends import_obsidian17.ItemView {
   }
   async setState(state, result) {
     this.state = state;
+    if (import_obsidian17.Platform.isMobile) {
+      this.leaf.view.titleEl.textContent = this.getDisplayText();
+    }
     await this.refresh();
-    return;
   }
   getState() {
     return this.state;
@@ -37390,6 +37392,15 @@ function create_else_block(ctx) {
       set_style(div0, "padding-right", "5px");
       set_style(div0, "display", "flex");
       attr(div1, "class", "tree-item-icon nav-folder-collapse-indicator collapse-icon");
+      toggle_class(
+        div1,
+        "is-collapsed",
+        /*closed*/
+        ctx[4][
+          /*entity*/
+          ctx[8].title
+        ]
+      );
       attr(div2, "class", "tree-item-inner nav-folder-title-content svelte-1lnl15d");
       attr(div3, "class", "tree-item-self is-clickable nav-folder-title");
       attr(
@@ -37432,6 +37443,18 @@ function create_else_block(ctx) {
     },
     p(new_ctx, dirty) {
       ctx = new_ctx;
+      if (!current || dirty & /*closed, hierarchy*/
+      17) {
+        toggle_class(
+          div1,
+          "is-collapsed",
+          /*closed*/
+          ctx[4][
+            /*entity*/
+            ctx[8].title
+          ]
+        );
+      }
       if ((!current || dirty & /*hierarchy*/
       1) && t2_value !== (t2_value = /*entity*/
       ctx[8].title + ""))
@@ -38219,6 +38242,12 @@ function create_fragment3(ctx) {
       if (if_block1)
         if_block1.c();
       attr(div0, "class", "tree-item-icon nav-folder-collapse-indicator collapse-icon");
+      toggle_class(
+        div0,
+        "is-collapsed",
+        /*isCollapsed*/
+        ctx[4]
+      );
       attr(div1, "class", "tree-item-inner nav-folder-title-content");
       attr(div1, "aria-label", div1_aria_label_value = /*log*/
       ctx[0].message);
@@ -38264,6 +38293,15 @@ function create_fragment3(ctx) {
       }
     },
     p(ctx2, [dirty]) {
+      if (!current || dirty & /*isCollapsed*/
+      16) {
+        toggle_class(
+          div0,
+          "is-collapsed",
+          /*isCollapsed*/
+          ctx2[4]
+        );
+      }
       if (
         /*log*/
         ctx2[0].refs.length > 0
@@ -39871,6 +39909,15 @@ function create_else_block3(ctx) {
       set_style(div0, "padding-right", "5px");
       set_style(div0, "display", "flex");
       attr(div1, "class", "tree-item-icon nav-folder-collapse-indicator collapse-icon");
+      toggle_class(
+        div1,
+        "is-collapsed",
+        /*closed*/
+        ctx[5][
+          /*entity*/
+          ctx[15].title
+        ]
+      );
       attr(div2, "class", "tree-item-inner nav-folder-title-content svelte-1lnl15d");
       set_style(div3, "width", "11px");
       attr(div4, "class", "buttons");
@@ -39922,6 +39969,18 @@ function create_else_block3(ctx) {
     },
     p(new_ctx, dirty) {
       ctx = new_ctx;
+      if (!current || dirty & /*closed, hierarchy*/
+      33) {
+        toggle_class(
+          div1,
+          "is-collapsed",
+          /*closed*/
+          ctx[5][
+            /*entity*/
+            ctx[15].title
+          ]
+        );
+      }
       if ((!current || dirty & /*hierarchy*/
       1) && t2_value !== (t2_value = /*entity*/
       ctx[15].title + ""))
@@ -40878,6 +40937,8 @@ function create_if_block8(ctx) {
       if (if_block2)
         if_block2.c();
       attr(div0, "class", "tree-item-icon nav-folder-collapse-indicator collapse-icon");
+      toggle_class(div0, "is-collapsed", !/*stagedOpen*/
+      ctx[13]);
       attr(div1, "class", "tree-item-inner nav-folder-title-content");
       attr(div2, "data-icon", "minus");
       attr(div2, "aria-label", "Unstage");
@@ -40890,6 +40951,8 @@ function create_if_block8(ctx) {
       toggle_class(div7, "is-collapsed", !/*stagedOpen*/
       ctx[13]);
       attr(div8, "class", "tree-item-icon nav-folder-collapse-indicator collapse-icon");
+      toggle_class(div8, "is-collapsed", !/*changesOpen*/
+      ctx[12]);
       attr(div9, "class", "tree-item-inner nav-folder-title-content");
       attr(div10, "data-icon", "undo");
       attr(div10, "aria-label", "Discard");
@@ -40980,6 +41043,11 @@ function create_if_block8(ctx) {
       }
     },
     p(ctx2, dirty) {
+      if (!current || dirty[0] & /*stagedOpen*/
+      8192) {
+        toggle_class(div0, "is-collapsed", !/*stagedOpen*/
+        ctx2[13]);
+      }
       if ((!current || dirty[0] & /*status*/
       64) && t4_value !== (t4_value = /*status*/
       ctx2[6].staged.length + ""))
@@ -41011,6 +41079,11 @@ function create_if_block8(ctx) {
       8192) {
         toggle_class(div7, "is-collapsed", !/*stagedOpen*/
         ctx2[13]);
+      }
+      if (!current || dirty[0] & /*changesOpen*/
+      4096) {
+        toggle_class(div8, "is-collapsed", !/*changesOpen*/
+        ctx2[12]);
       }
       if ((!current || dirty[0] & /*status*/
       64) && t12_value !== (t12_value = /*status*/
@@ -42407,8 +42480,8 @@ function instance9($$self, $$props, $$invalidate) {
   plugin.app.workspace.onLayoutReady(() => {
     window.setTimeout(
       () => {
-        buttons.forEach((btn) => (0, import_obsidian28.setIcon)(btn, btn.getAttr("data-icon"), 16));
-        (0, import_obsidian28.setIcon)(layoutBtn, showTree ? "list" : "folder", 16);
+        buttons.forEach((btn) => (0, import_obsidian28.setIcon)(btn, btn.getAttr("data-icon")));
+        (0, import_obsidian28.setIcon)(layoutBtn, showTree ? "list" : "folder");
       },
       0
     );
@@ -42451,6 +42524,21 @@ function instance9($$self, $$props, $$invalidate) {
         $$invalidate(6, status2 = void 0);
         return;
       }
+      const unPushedCommits = yield plugin.gitManager.getUnpushedCommits();
+      buttons.forEach((btn) => {
+        var _a2, _b;
+        if (import_obsidian28.Platform.isMobile) {
+          btn.removeClass("button-border");
+          if (btn.id == "push" && unPushedCommits > 0) {
+            btn.addClass("button-border");
+          }
+        } else {
+          (_a2 = btn.firstElementChild) === null || _a2 === void 0 ? void 0 : _a2.removeAttribute("color");
+          if (btn.id == "push" && unPushedCommits > 0) {
+            (_b = btn.firstElementChild) === null || _b === void 0 ? void 0 : _b.setAttr("color", "var(--text-accent)");
+          }
+        }
+      });
       $$invalidate(6, status2 = plugin.cachedStatus);
       if (plugin.lastPulledFiles && plugin.lastPulledFiles != lastPulledFiles) {
         $$invalidate(7, lastPulledFiles = plugin.lastPulledFiles);
@@ -42603,7 +42691,7 @@ function instance9($$self, $$props, $$invalidate) {
       $: {
         if (layoutBtn) {
           layoutBtn.empty();
-          (0, import_obsidian28.setIcon)(layoutBtn, showTree ? "list" : "folder", 16);
+          (0, import_obsidian28.setIcon)(layoutBtn, showTree ? "list" : "folder");
         }
       }
     }
@@ -42891,6 +42979,11 @@ var ObsidianGit = class extends import_obsidian30.Plugin {
       id: "pull",
       name: "Pull",
       callback: () => this.promiseQueue.addTask(() => this.pullChangesFromRemote())
+    });
+    this.addCommand({
+      id: "fetch",
+      name: "fetch",
+      callback: () => this.promiseQueue.addTask(() => this.fetch())
     });
     this.addCommand({
       id: "switch-to-remote-branch",
@@ -43660,6 +43753,7 @@ var ObsidianGit = class extends import_obsidian30.Plugin {
       }
       this.offlineMode = false;
       this.setState(0 /* idle */);
+      dispatchEvent(new CustomEvent("git-refresh"));
       return true;
     }
   }
@@ -43678,6 +43772,15 @@ var ObsidianGit = class extends import_obsidian30.Plugin {
       this.lastPulledFiles = pulledFiles;
     }
     return pulledFiles.length != 0;
+  }
+  async fetch() {
+    if (!await this.remotesAreSet()) {
+      return;
+    }
+    await this.gitManager.fetch();
+    this.displayMessage(`Fetched from remote`);
+    this.offlineMode = false;
+    dispatchEvent(new CustomEvent("git-refresh"));
   }
   async mayDeleteConflictFile() {
     const file = this.app.vault.getAbstractFileByPath(

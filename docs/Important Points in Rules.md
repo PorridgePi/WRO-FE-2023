@@ -19,7 +19,7 @@ Straightforward Section
 - 6 zones
 - 4 T-intersections and 2 X-intersections
 - traffic sign's seats
-![[SCR-20230508-ofqp.png]]
+    - ![../attachments/SCR-20230508-ofqp.png](../attachments/SCR-20230508-ofqp.png)
 
 
 # Engineer’s documentation on GitHub
