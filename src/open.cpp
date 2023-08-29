@@ -113,7 +113,7 @@ void loop() {
                 case -1: { // initiate turn
                     currentSide = POS_MOD(currentSide + (isClockwise ? 1 : -1), 4);
 
-                    turn(currentSide * 90 - (trueAngle + trueAngleZeroError), isClockwise ? 1 : -1);
+                    turn(currentSide * 90 - trueAngle, isClockwise ? 1 : -1);
                     case2 = 0;
                     break;
                 } case 0: { // move straight until wall detected

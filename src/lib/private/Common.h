@@ -93,11 +93,12 @@ void update() {
 
 void turn(float angle, float direction = 0) { // direction = 0 -> turn shortest way, direction = 1 -> turn clockwise, direction = -1 -> turn anticlockwise
     digitalWrite(PIN_LED, HIGH);
-    float targetAngle = LIM_ANGLE(imu.readAngle() + angle);
-    while (abs(imu.readAngle() - targetAngle) > 1) {
+    update();
+    float targetAngle = LIM_ANGLE(trueAngle + angle);
+    while (abs(trueAngle - targetAngle) > 1) {
+        update();
         digitalWrite(PIN_LED, HIGH);
-        float currentAngle = imu.readAngle();
-        turnRatio = constrain(ANGLE_360_TO_180(DELTA_ANGLE(currentAngle, targetAngle))/30.0f, -1, 1);
+        turnRatio = constrain(ANGLE_360_TO_180(DELTA_ANGLE(trueAngle, targetAngle))/30.0f, -1, 1);
         if (direction != 0) {
             turnRatio = abs(turnRatio) * direction;
         }
@@ -106,9 +107,9 @@ void turn(float angle, float direction = 0) { // direction = 0 -> turn shortest 
             turnRatio = turnRatio > 0 ? MIN_TURN_RATIO : -1 * MIN_TURN_RATIO;
         }
         EPRINT("turning...");
-        DPRINT(currentAngle);
+        DPRINT(trueAngle);
         DPRINT(targetAngle);
-        EPRINT(DELTA_ANGLE(currentAngle, targetAngle));
+        EPRINT(DELTA_ANGLE(trueAngle, targetAngle));
         Serial.println();
     }
     digitalWrite(PIN_LED, LOW);
