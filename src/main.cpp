@@ -211,28 +211,28 @@ void loop() {
                 } case 100: { // narrow left turn
                     speed = SPEED;
                     turn(-60);
-                    moveStraight(7);
+                    moveStraight(3);
                     turn(60);
                     case1 = 0;
                     break;
                 } case 110: { // narrow right turn
                     speed = SPEED;
                     turn(60);
-                    moveStraight(7);
+                    moveStraight(3);
                     turn(-60);
                     case1 = 0;
                     break;
                 } case 200: { // wide left turn
                     speed = SPEED;
                     turn(-60);
-                    moveStraight(15);
+                    moveStraight(10);
                     turn(60);
                     case1 = 0;
                     break;
                 } case 210: { // wide right turn
                     speed = SPEED;
                     turn(60);
-                    moveStraight(15);
+                    moveStraight(10);
                     turn(-60);
                     case1 = 0;
                     break;
