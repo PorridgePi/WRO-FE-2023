@@ -1,0 +1,19 @@
+- [YFROBOT 4WD chassis steered by a servo motor – yfrobot](https://yfrobot.com/products/steering-gear-robot)
+	- stall current
+		- @8.4v - 4A
+		- at 12V - 6A
+- Motor Driver
+	- [SparkFun Motor Driver - Dual TB6612FNG (1A)](https://www.sparkfun.com/products/14451)
+- Motor
+	- 25GA-12
+	- [YFROBOT Metal Gearmotor GA25 12V with 13 CPR Encoder Hall speed measur – yfrobot - https://yfrobot.com/products/metal-gearmotor-ga25-12v-with-16-cpr-encoder](https://yfrobot.com/products/metal-gearmotor-ga25-12v-with-16-cpr-encoder)
+	- 25GA-370
+		- [Specifications_for_Motor.pdf](https://files.seeedstudio.com/wiki/Skeleton_Bot-4WD_hercules_mobile_robotic_platform/res/Specifications_for_Motor.pdf)
+		- [产品型号：GM25-370-24140-75-14.5D10.xls](https://osoyoo.com/picture/mecanum_wheel_robotic/GM25-370-motor%20specification.pdf)
+- Servo Motor (for steering)
+	- [MG996R Tower-Pro](https://www.electronicoscaldas.com/datasheet/MG996R_Tower-Pro.pdf)
+- LiPo
+	- suitable voltage - closest to most common voltage used by components
+	- 18650 - 2x3.7V?
+	- if really needed - check conversion efficiency of voltage regulator
+- 

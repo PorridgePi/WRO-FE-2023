@@ -1,0 +1,2 @@
+- Tape black paper onto wooden blocks/foam blocks for walls
+- Ask if we could use back of old fields and draw/point on it
