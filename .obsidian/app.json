@@ -1,4 +1,10 @@
 {
   "showUnsupportedFiles": true,
-  "alwaysUpdateLinks": true
+  "alwaysUpdateLinks": true,
+  "useTab": false,
+  "attachmentFolderPath": "attachments",
+  "userIgnoreFilters": [
+    "src/",
+    "scripts/"
+  ]
 }
