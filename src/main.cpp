@@ -32,6 +32,7 @@ float encoderDistance = 0;
 
 float distLeft = 0, distRight = 0, distFront = 0;
 float distLeftCorr = 0, distRightCorr = 0, distFrontCorr = 0;
+float innerDist = 0, innerDistCorr = 0, outerDist = 0, outerDistCorr = 0;
 
 int initialDistLeft = 0, initialDistRight = 0, initialDistFront = 0;
 
@@ -67,21 +68,39 @@ void update() {
     relativeAngle = LIM_ANGLE(angle - relativeAngleZeroError);
     trueAngle = LIM_ANGLE(angle - trueAngleZeroError);
 
-    distLeft = lidarLeft.read();
-    distRight = lidarRight.read();
-    distFront = lidarFront.read();
+    int tempLeft, tempRight, tempFront;
+    tempLeft = lidarLeft.read();
+    tempRight = lidarRight.read();
+    tempFront = lidarFront.read();
+
+    if (tempLeft == 0 || tempRight == 0 || tempFront == 0) {
+        EPRINT("LIDAR ERROR");
+    }
+
+    distLeft = tempLeft <= 0 ? distLeft : tempLeft;
+    distRight = tempRight <= 0 ? distLeft : tempRight;
+    distFront = tempFront <= 0 ? distLeft : tempFront;
+
     distLeftCorr = distLeft * cos(RAD(ANGLE_360_TO_180(relativeAngle)));
     distRightCorr = distRight * cos(RAD(ANGLE_360_TO_180(relativeAngle)));
     distFrontCorr = distFront * cos(RAD(ANGLE_360_TO_180(relativeAngle)));
+
+    innerDistCorr = isClockwise ? distRightCorr : distLeftCorr;
+    innerDist = isClockwise ? distRight : distLeft;
+    outerDistCorr = isClockwise ? distLeftCorr : distRightCorr;
+    outerDist = isClockwise ? distLeft : distRight;
 }
 
-void turn(float angle) {
+void turn(float angle, float direction = 0) { // direction = 0 -> turn shortest way, direction = 1 -> turn clockwise, direction = -1 -> turn anticlockwise
     digitalWrite(PIN_LED, HIGH);
     float targetAngle = LIM_ANGLE(imu.readAngle() + angle);
     while (abs(imu.readAngle() - targetAngle) > 1) {
         digitalWrite(PIN_LED, HIGH);
         float currentAngle = imu.readAngle();
         turnRatio = constrain(ANGLE_360_TO_180(DELTA_ANGLE(currentAngle, targetAngle))/30.0f, -1, 1);
+        if (direction != 0) {
+            turnRatio = abs(turnRatio) * direction;
+        }
         const float MIN_TURN_RATIO = 0.5;
         if (abs(turnRatio) < MIN_TURN_RATIO) {
             turnRatio = turnRatio > 0 ? MIN_TURN_RATIO : -1 * MIN_TURN_RATIO;
@@ -124,6 +143,11 @@ void setupComponents() {
     Wire1.setSDA(PIN_WIRE1_SDA);
     Wire1.setTimeout(1); // set timeout to 1 ms
     Wire1.begin();
+
+    // LiDAR FPS
+    lidarFront.setFPS(250);
+    lidarLeft.setFPS(250);
+    lidarRight.setFPS(250);
 
     // Servo
     servo.init();
@@ -211,14 +235,14 @@ void loop() {
                 } case 100: { // narrow left turn
                     speed = SPEED;
                     turn(-60);
-                    moveStraight(3);
+                    // moveStraight(3);
                     turn(60);
                     case1 = 0;
                     break;
                 } case 110: { // narrow right turn
                     speed = SPEED;
                     turn(60);
-                    moveStraight(3);
+                    // moveStraight(3);
                     turn(-60);
                     case1 = 0;
                     break;
@@ -243,14 +267,12 @@ void loop() {
         } case 2: { // corner turn
             static int case2 = -1;
             static int runCount = 0;
-            int innerDist = isClockwise ? distRight : distLeft;
-            int outerDist = isClockwise ? distLeft : distRight;
             DPRINT(innerDist);
             switch (case2) {
                 case -1: { // initiate turn
                     currentSide = POS_MOD(currentSide + (isClockwise ? 1 : -1), 4);
 
-                    turn(currentSide * 90 - (trueAngle + trueAngleZeroError));
+                    turn(currentSide * 90 - (trueAngle + trueAngleZeroError), isClockwise ? 1 : -1);
                     case2 = 0;
                     break;
                 } case 0: { // move straight until wall detected
@@ -282,20 +304,19 @@ void loop() {
                     case3 = 0;
                     break;
                 } case 0: {
-                    int innerDist = isClockwise ? distRightCorr : distLeftCorr;
                     if (innerDist > WALL_MISSING_DISTANCE) { // wall missing, change state
                         moveStraight(15);
 
                         case3 = -1; // reset case3
                         caseMain = 2; // next caseMain
                     } else { // wall present
-                        if (abs(innerDist - MIN_WALL_DISTANCE) <= 1) { // move straight
+                        if (abs(innerDistCorr - MIN_WALL_DISTANCE) <= 1) { // move straight
                             correctToRelativeZero();
                             EPRINT("move straight");
                         } else { // correct to wall
                             speed = SPEED;
 
-                            int distDiff = innerDist - MIN_WALL_DISTANCE;
+                            int distDiff = innerDistCorr - MIN_WALL_DISTANCE;
                             // -ve -> too close to inner wall (right wall if clockwise, left wall if anticlockwise)
                             // -> turn left if clockwise, turn right if anticlockwise
                             // -ve if clockwise, +ve if anticlockwise
@@ -333,23 +354,23 @@ void loop() {
     }
 
     // EPRINT(imu.readAngle());
-    DPRINT(isClockwise);
+    // DPRINT(isClockwise);
     DPRINT(caseMain);
     DPRINT(currentSide);
 
     // DPRINT(distFront);
-    DPRINT(distFrontCorr);
+    // DPRINT(distFrontCorr);
     DPRINT(distLeft);
-    DPRINT(distLeftCorr);
+    // DPRINT(distLeftCorr);
     DPRINT(distRight);
-    DPRINT(distRightCorr);
+    // DPRINT(distRightCorr);
 
     DPRINT(trueAngle);
     DPRINT(relativeAngle);
     // DPRINT(speed);
     // DPRINT(turnRatio);
 
-    DPRINT(encoderDistance);
+    // DPRINT(encoderDistance);
 
     Serial.println();
 }
