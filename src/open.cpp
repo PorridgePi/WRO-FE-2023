@@ -1,5 +1,7 @@
 #include <Common.h>
 
+#define MAX_CORNER_COUNT 12
+
 void setup() {
     setupComponents();
     servo.turn(1);
@@ -115,15 +117,23 @@ void loop() {
             static int case2 = -1;
             switch (case2) {
                 case -1: { // initiate turn
+                    cornerCount++;
                     currentSide = POS_MOD(currentSide + (isClockwise ? 1 : -1), 4);
+                    if (cornerCount >= MAX_CORNER_COUNT) { // move straight until allign
+                        float initialDistOuter = isClockwise ? initialDistLeft : initialDistRight;
+                        while (distFront - initialDistOuter > TURNING_RADIUS) {
+                            update();
+                            speed = SPEED;
+                            turnRatio = 0;
+                        }
+                    }
                     turn(currentSide * 90 - trueAngle, isClockwise ? 1 : -1);
                     case2 = 0;
                     break;
                 } case 0: { // move straight until wall detected
                     if (innerDist < 70 && innerDistBack < 70) { // wall detected, change state // min to prevent false positive
                         case2 = -1; // reset case2
-                        cornerCount++;
-                        if (cornerCount >= 12) {
+                        if (cornerCount >= MAX_CORNER_COUNT) {
                             caseMain = 4; // END
                         } else {
                             moveStraight(20);
@@ -205,18 +215,48 @@ void loop() {
             static int case4 = -1;
             switch (case4) {
                 case -1: {
-                    // float horiError = ((initialDistLeft - distLeftCorr) + (distRightCorr - initialDistRight)) / 2;
-                    // float vertError = distFrontCorr - initialDistFront;
-                    // float distance = sqrtf(horiError * horiError + vertError * vertError);
-                    // float angle = DEG(atan2(horiError, vertError));
-                    // float initialDistance = encoderDistance;
-                    // turn(angle);
-                    // while (abs(encoderDistance - initialDistance) < distance) {
-                    //     update();
-                    //     speed = SPEED;
-                    //     turnRatio = 0;
-                    // }
-                    moveStraight(20);
+                    while (abs(ANGLE_360_TO_180(relativeAngle)) > 3) { // face straight before continuing
+                        update();
+                        correctToRelativeZero();
+                        digitalWrite(PIN_LED, HIGH);
+                    }
+                    while (distFront - initialDistFront > 5) {
+                        float initialDistOuter = isClockwise ? initialDistLeft : initialDistRight;
+                        float initialDistInner = isClockwise ? initialDistRight : initialDistLeft;
+                        float MIN_WALL_DISTANCE = initialDistInner;
+                        update();
+                        speed = SPEED;
+
+                        int distDiff = innerDistCorr - MIN_WALL_DISTANCE;
+                        // -ve -> too close to inner wall (right wall if clockwise, left wall if anticlockwise)
+                        // -> turn left if clockwise, turn right if anticlockwise
+                        // -ve if clockwise, +ve if anticlockwise
+                        // * 1 if clockwise, * -1 if anticlockwise 
+                        float error = constrain(distDiff / 20.0f, -1, 1);
+                        turnRatio = powf(abs(error), 1.0f) * (error > 0 ? 1 : -1);
+                        turnRatio *= (isClockwise ? 1 : -1); // clockwise -> turn right, anticlockwise -> turn left
+
+                        static float MAX_ANGLE = 30;
+                        float turnRatioMaxMultiplier = constrain((MAX_ANGLE - abs(ANGLE_360_TO_180(relativeAngle))) / MAX_ANGLE, 0, 1);
+                        bool toRestrict = false;
+                        if (error > 0) { // too far - allow turning in clockwise direction, restrict not clockwise
+                            if (isClockwise && turnRatio < 0) {
+                                toRestrict = true;
+                            } else if (!isClockwise && turnRatio > 0) {
+                                toRestrict = true;
+                            }
+                        } else { // too near - restrict turning in clockwise direction
+                            if (isClockwise && turnRatio > 0) {
+                                toRestrict = true;
+                            } else if (!isClockwise && turnRatio < 0) {
+                                toRestrict = true;
+                            }
+                        }
+
+                        if (toRestrict) {
+                            turnRatio *= turnRatioMaxMultiplier;
+                        }
+                    }
                     case4 = 0;
                     break;
                 } case 0: {
