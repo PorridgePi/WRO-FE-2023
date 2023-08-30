@@ -37,3 +37,7 @@ Using Visual Studio Code:
 # Team Members
 - [Yikun](https://github.com/PorridgePi)
 - [Zachary](https://github.com/Zachareeeeee)
+
+# Reminders
+[] CALIBRATE COMPASS BEFORE RUNNING
+
