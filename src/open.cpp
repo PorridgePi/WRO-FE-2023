@@ -25,15 +25,13 @@ void loop() {
             speed = 0;
             turnRatio = 0;
             sideCount = 0;
-
-            relativeAngleTare();
+            currentSide = 0;
             if (button.isPressed()) {
                 trueAngleZeroTare();
                 initialDistFront = distFront;
                 initialDistLeft = distLeft;
                 initialDistRight = distRight;
 
-                currentSide = 0;
                 caseMain = 3;
             }
             break;
@@ -117,23 +115,30 @@ void loop() {
         } case 2: { // corner turn
             static int case2 = -1;
             static int runCount = 0;
-            DPRINT(innerDist);
             switch (case2) {
                 case -1: { // initiate turn
                     currentSide = POS_MOD(currentSide + (isClockwise ? 1 : -1), 4);
-
                     turn(currentSide * 90 - trueAngle, isClockwise ? 1 : -1);
                     case2 = 0;
                     break;
                 } case 0: { // move straight until wall detected
-                    if ((innerDist + outerDist) <= 100) { // wall detected, change state // min to prevent false positive
+                    if (innerDist < 70 && innerDistBack < 70) { // wall detected, change state // min to prevent false positive
+                        // speed = 0;
+                        // EPRINT("FDBSKFBDSFBSJFB")
+                        // delay(1000);
+                        // speed = SPEED;
                         moveStraight(20);
                         case2 = -1; // reset case2
-                        if (runCount == 1) {
-                            caseMain =  3; // next caseMain
-                        } else {
-                            caseMain =  3; // next caseMain
-                        }
+                        // if (runCount == 1) {
+                        //     caseMain =  0; // next caseMain
+                        // } else {
+                        //     caseMain =  0; // next caseMain
+                        // }
+                        // speed = 0;
+                        // EPRINT("AAAAAAAAAAAA")
+                        // delay(1000);
+                        // speed = SPEED;
+                        caseMain = 3;
                         runCount++;
                         speed = 0;
                     } else {
@@ -150,12 +155,17 @@ void loop() {
             static int case3 = -1;
             switch (case3) {
                 case -1: { // ran once
-                    relativeAngleTare(currentSide * 90 - (trueAngle + trueAngleZeroError)); // trueAngle + trueAngleZeroError = imu.readAngle() // DO NOT LIM_ANGLE
                     case3 = 0;
                     break;
                 } case 0: {
-                    DPRINT(innerDist);
-                    if (innerDist > 60) { // wall missing, change state
+                    EPRINT(headingDiff)
+                    EPRINT(innerDist);
+                    if (abs(headingDiff) > 45 || innerDist > 100 || innerDistBack > 100) { // wall missing, change state
+                        while (abs(ANGLE_360_TO_180(relativeAngle)) > 3) { // face straight before turning
+                            update();
+                            correctToRelativeZero();
+                            digitalWrite(PIN_LED, HIGH);
+                        }
                         moveStraight(15);
 
                         case3 = -1; // reset case3
@@ -175,11 +185,7 @@ void loop() {
                             float error = constrain(distDiff / 20.0f, -1, 1);
                             turnRatio = powf(abs(error), 1.0f) * (error > 0 ? 1 : -1);
                             turnRatio *= (isClockwise ? 1 : -1); // clockwise -> turn right, anticlockwise -> turn left
-                            // const float MIN_TURN_RATIO = 0.3;
-                            // if (abs(turnRatio) < MIN_TURN_RATIO) {
-                            //     turnRatio = MIN_TURN_RATIO * turnRatio > 0 ? 1 : -1;
-                            // }
-                            DPRINT(turnRatio)
+
                             static float MAX_ANGLE = 30; // kangming has a girlfriend!
                             float turnRatioMaxMultiplier = constrain((MAX_ANGLE - abs(ANGLE_360_TO_180(relativeAngle))) / MAX_ANGLE, 0, 1);
                             bool toRestrict = false;
@@ -197,11 +203,9 @@ void loop() {
                                 }
                             }
 
-                            DPRINT(turnRatioMaxMultiplier);
                             if (toRestrict) {
                                 turnRatio *= turnRatioMaxMultiplier;
                             }
-                            DPRINT(turnRatio)
                         }
                     }
                     break;
@@ -227,25 +231,24 @@ void loop() {
         caseMain = 0;
     }
 
-    // EPRINT(imu.readAngle());
     // DPRINT(isClockwise);
     DPRINT(caseMain);
     DPRINT(currentSide);
 
-    DPRINT(distFront);
+    // DPRINT(distFront);
     // DPRINT(distFrontCorr);
-    DPRINT(distLeft);
+    // DPRINT(distLeft);
     // DPRINT(distLeftCorr);
-    DPRINT(distRight);
+    // DPRINT(distRight);
     // DPRINT(distRightCorr);
-    DPRINT(distLeftBack);
+    // DPRINT(distLeftBack);
     // DPRINT(distLeftBackCorr);
-    DPRINT(distRightBack);
+    // DPRINT(distRightBack);
     // DPRINT(distRightBackCorr);
 
 
-    // DPRINT(trueAngle);
-    // DPRINT(relativeAngle);
+    DPRINT(trueAngle);
+    DPRINT(relativeAngle);
     // DPRINT(speed);
     DPRINT(turnRatio);
 

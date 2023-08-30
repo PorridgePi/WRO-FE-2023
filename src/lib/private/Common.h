@@ -11,11 +11,12 @@
 #define DEBUG_PRINT true
 #define DIRECTION -1
 #define SPEED 0.3
+#define LIDAR_DIFF_CORRECTION -4.0
 
 Button button(PIN_BUTTON_A, PIN_BUTTON_B);
 Motor motor(PIN_MOTOR_A, PIN_MOTOR_B);
 DriveServo servo(PIN_SERVO);
-MechaQMC5883 imu(Wire, -82.5, 132, 1.3303083836, 87.3252479755);
+MechaQMC5883 imu(Wire, 125, 10, 1.39358584073, 86.7210137411);
 Lidar lidarFront(Wire, 0x10);
 Lidar lidarLeft(Wire1, 0x11);
 Lidar lidarLeftBack(Wire1, 0x10);
@@ -37,6 +38,8 @@ float distLeftCorr = 0, distRightCorr = 0, distFrontCorr = 0, distLeftBackCorr =
 float innerDist = 0, innerDistCorr = 0, outerDist = 0, outerDistCorr = 0, innerDistBack = 0, innerDistBackCorr = 0, outerDistBack = 0, outerDistBackCorr = 0;
 
 int initialDistLeft = 0, initialDistRight = 0, initialDistFront = 0;
+
+float headingDiff, lidarHeading;
 
 float trueAngle = 0, trueAngleZeroError = 0; // relative to the start i.e. 0 <= x < 360
 float relativeAngle = 0, relativeAngleZeroError = 0; // relative to each side i.e. 0 <= x < 90
@@ -67,7 +70,7 @@ void update() {
     encoderDistance = encoder.readDistance();
 
     float angle = imu.readAngle();
-    relativeAngle = LIM_ANGLE(angle - relativeAngleZeroError);
+    relativeAngle = LIM_ANGLE(trueAngle - currentSide * 90);
     trueAngle = LIM_ANGLE(angle - trueAngleZeroError);
 
     int tempLeft, tempRight, tempFront, tempLeftBack, tempRightBack;
@@ -78,7 +81,7 @@ void update() {
     tempRightBack = lidarRightBack.read();
 
     if (tempLeft == 0 || tempRight == 0 || tempFront == 0 || tempLeftBack == 0 || tempRightBack == 0) {
-        EPRINT("LIDAR ERROR");
+        // EPRINT("LIDAR ERROR");
     }
 
     distLeft = tempLeft <= 0 ? distLeft : tempLeft;
@@ -99,6 +102,14 @@ void update() {
     outerDist = isClockwise ? distLeft : distRight;
     innerDistBackCorr = isClockwise ? distRightBackCorr : distLeftBackCorr;
     innerDistBack = isClockwise ? distRightBack : distLeftBack;
+
+    lidarHeading = LIM_ANGLE(DEG(atan2(innerDist - innerDistBack - LIDAR_DIFF_CORRECTION, 13)));
+    headingDiff = ANGLE_360_TO_180(DELTA_ANGLE(relativeAngle, lidarHeading));
+    DPRINT(innerDist);
+    DPRINT(distRightBack);
+    DPRINT(lidarHeading);
+    DPRINT(relativeAngle);
+    DPRINT(headingDiff);
 }
 
 void turn(float angle, float direction = 0) { // direction = 0 -> turn shortest way, direction = 1 -> turn clockwise, direction = -1 -> turn anticlockwise
