@@ -2,7 +2,16 @@
 
 void setup() {
     setupComponents();
+    servo.turn(1);
+    delay(500);
+    servo.turn(-1);
+    delay(500);
+    servo.turn(0);
     Serial.begin(115200);
+}
+
+void setup1() {
+    delay(1500);
 }
 
 void loop() {
@@ -25,7 +34,7 @@ void loop() {
                 initialDistRight = distRight;
 
                 currentSide = 0;
-                caseMain = 1;
+                caseMain = 3;
             }
             break;
         } case 1: { // first straight lane
@@ -136,7 +145,7 @@ void loop() {
             }
             break;
         } case 3: { // track along inner wall until corner
-            const int MIN_WALL_DISTANCE = 20;
+            const int MIN_WALL_DISTANCE = 20; // target distance from wall to robot
 
             static int case3 = -1;
             switch (case3) {
@@ -145,13 +154,14 @@ void loop() {
                     case3 = 0;
                     break;
                 } case 0: {
-                    if (innerDist > WALL_MISSING_DISTANCE) { // wall missing, change state
+                    DPRINT(innerDist);
+                    if (innerDist > 60) { // wall missing, change state
                         moveStraight(15);
 
                         case3 = -1; // reset case3
                         caseMain = 2; // next caseMain
                     } else { // wall present
-                        if (abs(innerDistCorr - MIN_WALL_DISTANCE) <= 1) { // move straight
+                        if (abs(innerDistCorr - MIN_WALL_DISTANCE) <= 3) { // move straight
                             correctToRelativeZero();
                             EPRINT("move straight");
                         } else { // correct to wall
@@ -161,14 +171,37 @@ void loop() {
                             // -ve -> too close to inner wall (right wall if clockwise, left wall if anticlockwise)
                             // -> turn left if clockwise, turn right if anticlockwise
                             // -ve if clockwise, +ve if anticlockwise
-                            // * 1 if clockwise, * -1 if anticlockwise
-
-                            turnRatio = constrain(distDiff / 10.0f, -1, 1) * (isClockwise ? 1 : -1);
-                            EPRINT(turnRatio)
-                            static float MAX_ANGLE = 45;
+                            // * 1 if clockwise, * -1 if anticlockwise 
+                            float error = constrain(distDiff / 20.0f, -1, 1);
+                            turnRatio = powf(abs(error), 1.0f) * (error > 0 ? 1 : -1);
+                            turnRatio *= (isClockwise ? 1 : -1); // clockwise -> turn right, anticlockwise -> turn left
+                            // const float MIN_TURN_RATIO = 0.3;
+                            // if (abs(turnRatio) < MIN_TURN_RATIO) {
+                            //     turnRatio = MIN_TURN_RATIO * turnRatio > 0 ? 1 : -1;
+                            // }
+                            DPRINT(turnRatio)
+                            static float MAX_ANGLE = 30; // kangming has a girlfriend!
                             float turnRatioMaxMultiplier = constrain((MAX_ANGLE - abs(ANGLE_360_TO_180(relativeAngle))) / MAX_ANGLE, 0, 1);
-                            EPRINT(turnRatioMaxMultiplier)
-                            turnRatio *= turnRatioMaxMultiplier;
+                            bool toRestrict = false;
+                            if (error > 0) { // too far - allow turning in clockwise direction, restrict not clockwise
+                                if (isClockwise && turnRatio < 0) {
+                                    toRestrict = true;
+                                } else if (!isClockwise && turnRatio > 0) {
+                                    toRestrict = true;
+                                }
+                            } else { // too near - restrict turning in clockwise direction
+                                if (isClockwise && turnRatio > 0) {
+                                    toRestrict = true;
+                                } else if (!isClockwise && turnRatio < 0) {
+                                    toRestrict = true;
+                                }
+                            }
+
+                            DPRINT(turnRatioMaxMultiplier);
+                            if (toRestrict) {
+                                turnRatio *= turnRatioMaxMultiplier;
+                            }
+                            DPRINT(turnRatio)
                         }
                     }
                     break;
@@ -199,17 +232,22 @@ void loop() {
     DPRINT(caseMain);
     DPRINT(currentSide);
 
-    // DPRINT(distFront);
+    DPRINT(distFront);
     // DPRINT(distFrontCorr);
     DPRINT(distLeft);
     // DPRINT(distLeftCorr);
     DPRINT(distRight);
     // DPRINT(distRightCorr);
+    DPRINT(distLeftBack);
+    // DPRINT(distLeftBackCorr);
+    DPRINT(distRightBack);
+    // DPRINT(distRightBackCorr);
 
-    DPRINT(trueAngle);
-    DPRINT(relativeAngle);
+
+    // DPRINT(trueAngle);
+    // DPRINT(relativeAngle);
     // DPRINT(speed);
-    // DPRINT(turnRatio);
+    DPRINT(turnRatio);
 
     // DPRINT(encoderDistance);
 
@@ -220,4 +258,5 @@ void loop1() {
     blinkLED();
     servo.turn(turnRatio * DIRECTION);
     motor.setSpeed(speed * DIRECTION);
+    delay(1);
 }
