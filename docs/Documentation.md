@@ -13,5 +13,5 @@
     2. Power passes through a 5V regulator before being distributed to the servo, sensors and Raspberry Pi Pico used as a microcontroller.
     3. Front and side facing LiDARs are used to measure the distance to the walls. The TFLunas used have a maximum range of 2m which is sufficient for detecting the side walls but may at times not have enough especially for the front facing LiDAR.
 3. Obstacle management
-    1. 
+    1. For the open round, the vehicle attempts to maintain a fixed distance from the inner wall.
         
