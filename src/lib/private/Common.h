@@ -13,11 +13,12 @@
 #define SPEED 0.5
 #define LIDAR_DIFF_CORRECTION_LEFT -4.0
 #define LIDAR_DIFF_CORRECTION_RIGHT -4.0
+#define TURNING_RADIUS 20
 
 Button button(PIN_BUTTON_A, PIN_BUTTON_B);
 Motor motor(PIN_MOTOR_A, PIN_MOTOR_B);
 DriveServo servo(PIN_SERVO);
-MechaQMC5883 imu(Wire, 125, 10, 1.39358584073, 86.7210137411);
+MechaQMC5883 imu(Wire, -28, 46.5, 1.35667791828, -89.8894438815);
 Lidar lidarFront(Wire, 0x10);
 Lidar lidarLeft(Wire1, 0x11);
 Lidar lidarLeftBack(Wire1, 0x10);
