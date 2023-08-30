@@ -39,5 +39,5 @@ Using Visual Studio Code:
 - [Zachary](https://github.com/Zachareeeeee)
 
 # Reminders
-[] CALIBRATE COMPASS BEFORE RUNNING
+* CALIBRATE COMPASS BEFORE RUNNING
 
