@@ -10,8 +10,9 @@
 
 #define DEBUG_PRINT true
 #define DIRECTION -1
-#define SPEED 0.3
-#define LIDAR_DIFF_CORRECTION -4.0
+#define SPEED 0.5
+#define LIDAR_DIFF_CORRECTION_LEFT -4.0
+#define LIDAR_DIFF_CORRECTION_RIGHT -4.0
 
 Button button(PIN_BUTTON_A, PIN_BUTTON_B);
 Motor motor(PIN_MOTOR_A, PIN_MOTOR_B);
@@ -21,7 +22,7 @@ Lidar lidarFront(Wire, 0x10);
 Lidar lidarLeft(Wire1, 0x11);
 Lidar lidarLeftBack(Wire1, 0x10);
 Lidar lidarRight(Wire, 0x12);
-Lidar lidarRightBack(Wire1, 0x12);
+Lidar lidarRightBack(Wire1, 0x13);
 Encoder encoder(PIN_ENCODER_A, PIN_ENCODER_B, 6.5);
 
 #define WALL_PRESENT_DISTANCE 35 // if lower than this, wall is present
@@ -44,7 +45,9 @@ float headingDiff, lidarHeading;
 float trueAngle = 0, trueAngleZeroError = 0; // relative to the start i.e. 0 <= x < 360
 float relativeAngle = 0, relativeAngleZeroError = 0; // relative to each side i.e. 0 <= x < 90
 
-bool isClockwise = false; // clockwise -> turn right, anticlockwise -> turn left
+bool isClockwise = true; // clockwise -> turn right, anticlockwise -> turn left
+
+int cornerCount = 0;
 
 void correctToRelativeZero() {
     turnRatio = -1 * constrain(ANGLE_360_TO_180(relativeAngle) / 30, -1, 1);
@@ -102,14 +105,18 @@ void update() {
     outerDist = isClockwise ? distLeft : distRight;
     innerDistBackCorr = isClockwise ? distRightBackCorr : distLeftBackCorr;
     innerDistBack = isClockwise ? distRightBack : distLeftBack;
-
-    lidarHeading = LIM_ANGLE(DEG(atan2(innerDist - innerDistBack - LIDAR_DIFF_CORRECTION, 13)));
+    EPRINT(innerDist - innerDistBack);
+    if (isClockwise) {
+        lidarHeading = LIM_ANGLE(360 - DEG(atan2(innerDist - innerDistBack - LIDAR_DIFF_CORRECTION_RIGHT, 13)));
+    } else {
+        lidarHeading = LIM_ANGLE(DEG(atan2(innerDist - innerDistBack - LIDAR_DIFF_CORRECTION_LEFT, 13)));
+    }
     headingDiff = ANGLE_360_TO_180(DELTA_ANGLE(relativeAngle, lidarHeading));
-    DPRINT(innerDist);
-    DPRINT(distRightBack);
-    DPRINT(lidarHeading);
-    DPRINT(relativeAngle);
-    DPRINT(headingDiff);
+    // DPRINT(innerDist);
+    // DPRINT(distRightBack);
+    // DPRINT(lidarHeading);
+    // DPRINT(relativeAngle);
+    // DPRINT(headingDiff);
 }
 
 void turn(float angle, float direction = 0) { // direction = 0 -> turn shortest way, direction = 1 -> turn clockwise, direction = -1 -> turn anticlockwise

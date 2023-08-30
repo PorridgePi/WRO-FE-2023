@@ -18,13 +18,12 @@ void loop() {
     update();
 
     speed = SPEED;
-    static int sideCount = 0;
 
     switch (caseMain) {
         case 0: { // stop
             speed = 0;
             turnRatio = 0;
-            sideCount = 0;
+            cornerCount = 0;
             currentSide = 0;
             if (button.isPressed()) {
                 trueAngleZeroTare();
@@ -32,7 +31,7 @@ void loop() {
                 initialDistLeft = distLeft;
                 initialDistRight = distRight;
 
-                caseMain = 3;
+                caseMain = 1;
             }
             break;
         } case 1: { // first straight lane
@@ -77,7 +76,7 @@ void loop() {
                         isClockwise = toTurnRight && !toTurnLeft; 
                         case1 = -1;
                         caseMain = 2;
-                        moveStraight(15);
+                        moveStraight(10);
                     }
                     break;
                 } case 100: { // narrow left turn
@@ -114,7 +113,6 @@ void loop() {
             break;
         } case 2: { // corner turn
             static int case2 = -1;
-            static int runCount = 0;
             switch (case2) {
                 case -1: { // initiate turn
                     currentSide = POS_MOD(currentSide + (isClockwise ? 1 : -1), 4);
@@ -123,24 +121,14 @@ void loop() {
                     break;
                 } case 0: { // move straight until wall detected
                     if (innerDist < 70 && innerDistBack < 70) { // wall detected, change state // min to prevent false positive
-                        // speed = 0;
-                        // EPRINT("FDBSKFBDSFBSJFB")
-                        // delay(1000);
-                        // speed = SPEED;
-                        moveStraight(20);
                         case2 = -1; // reset case2
-                        // if (runCount == 1) {
-                        //     caseMain =  0; // next caseMain
-                        // } else {
-                        //     caseMain =  0; // next caseMain
-                        // }
-                        // speed = 0;
-                        // EPRINT("AAAAAAAAAAAA")
-                        // delay(1000);
-                        // speed = SPEED;
-                        caseMain = 3;
-                        runCount++;
-                        speed = 0;
+                        cornerCount++;
+                        if (cornerCount >= 12) {
+                            caseMain = 4; // END
+                        } else {
+                            moveStraight(20);
+                            caseMain = 3; // next caseMain
+                        }
                     } else {
                         speed = SPEED;
                         turnRatio = 0;
@@ -186,7 +174,7 @@ void loop() {
                             turnRatio = powf(abs(error), 1.0f) * (error > 0 ? 1 : -1);
                             turnRatio *= (isClockwise ? 1 : -1); // clockwise -> turn right, anticlockwise -> turn left
 
-                            static float MAX_ANGLE = 30; // kangming has a girlfriend!
+                            static float MAX_ANGLE = 30;
                             float turnRatioMaxMultiplier = constrain((MAX_ANGLE - abs(ANGLE_360_TO_180(relativeAngle))) / MAX_ANGLE, 0, 1);
                             bool toRestrict = false;
                             if (error > 0) { // too far - allow turning in clockwise direction, restrict not clockwise
@@ -213,10 +201,23 @@ void loop() {
             }
             
             break;
-        } case 4: {
+        } case 4: { // return to home section
             static int case4 = -1;
             switch (case4) {
                 case -1: {
+                    // float horiError = ((initialDistLeft - distLeftCorr) + (distRightCorr - initialDistRight)) / 2;
+                    // float vertError = distFrontCorr - initialDistFront;
+                    // float distance = sqrtf(horiError * horiError + vertError * vertError);
+                    // float angle = DEG(atan2(horiError, vertError));
+                    // float initialDistance = encoderDistance;
+                    // turn(angle);
+                    // while (abs(encoderDistance - initialDistance) < distance) {
+                    //     update();
+                    //     speed = SPEED;
+                    //     turnRatio = 0;
+                    // }
+                    moveStraight(20);
+                    case4 = 0;
                     break;
                 } case 0: {
                     case4 = -1;
@@ -235,11 +236,11 @@ void loop() {
     DPRINT(caseMain);
     DPRINT(currentSide);
 
-    // DPRINT(distFront);
+    DPRINT(distFront);
     // DPRINT(distFrontCorr);
-    // DPRINT(distLeft);
+    DPRINT(distLeft);
     // DPRINT(distLeftCorr);
-    // DPRINT(distRight);
+    DPRINT(distRight);
     // DPRINT(distRightCorr);
     // DPRINT(distLeftBack);
     // DPRINT(distLeftBackCorr);
