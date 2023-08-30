@@ -14,12 +14,16 @@ void sineMotion() {
 
 void fixedMotion() {
     servo.turn(0);
+    Serial.println("0");
     delay(2000);
     servo.turn(1);
+    Serial.println("1");
     delay(2000);
     servo.turn(0);
+    Serial.println("0");
     delay(2000);
     servo.turn(-1);
+    Serial.println("-1");
     delay(2000);
 }
 
