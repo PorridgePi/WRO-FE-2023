@@ -15,10 +15,12 @@
 Button button(PIN_BUTTON_A, PIN_BUTTON_B);
 Motor motor(PIN_MOTOR_A, PIN_MOTOR_B);
 DriveServo servo(PIN_SERVO);
-MechaQMC5883 imu(Wire, -402, 77, 1.3609663142, 88.8973302503);
-Lidar lidarFront(Wire1, 0x10);
+MechaQMC5883 imu(Wire, -82.5, 132, 1.3303083836, 87.3252479755);
+Lidar lidarFront(Wire, 0x10);
 Lidar lidarLeft(Wire1, 0x11);
+Lidar lidarLeftBack(Wire1, 0x10);
 Lidar lidarRight(Wire, 0x12);
+Lidar lidarRightBack(Wire1, 0x12);
 Encoder encoder(PIN_ENCODER_A, PIN_ENCODER_B, 6.5);
 
 #define WALL_PRESENT_DISTANCE 35 // if lower than this, wall is present
@@ -30,16 +32,16 @@ int currentSide = 0; // clockwise, side 0 = heading 0, side 1 = heading 90, side
 int caseMain = 0;
 float encoderDistance = 0;
 
-float distLeft = 0, distRight = 0, distFront = 0;
-float distLeftCorr = 0, distRightCorr = 0, distFrontCorr = 0;
-float innerDist = 0, innerDistCorr = 0, outerDist = 0, outerDistCorr = 0;
+float distLeft = 0, distRight = 0, distFront, distLeftBack, distRightBack = 0;
+float distLeftCorr = 0, distRightCorr = 0, distFrontCorr = 0, distLeftBackCorr = 0, distRightBackCorr = 0;
+float innerDist = 0, innerDistCorr = 0, outerDist = 0, outerDistCorr = 0, innerDistBack = 0, innerDistBackCorr = 0, outerDistBack = 0, outerDistBackCorr = 0;
 
 int initialDistLeft = 0, initialDistRight = 0, initialDistFront = 0;
 
 float trueAngle = 0, trueAngleZeroError = 0; // relative to the start i.e. 0 <= x < 360
 float relativeAngle = 0, relativeAngleZeroError = 0; // relative to each side i.e. 0 <= x < 90
 
-bool isClockwise = true; // clockwise -> turn right, anticlockwise -> turn left
+bool isClockwise = false; // clockwise -> turn right, anticlockwise -> turn left
 
 void correctToRelativeZero() {
     turnRatio = -1 * constrain(ANGLE_360_TO_180(relativeAngle) / 30, -1, 1);
@@ -68,27 +70,35 @@ void update() {
     relativeAngle = LIM_ANGLE(angle - relativeAngleZeroError);
     trueAngle = LIM_ANGLE(angle - trueAngleZeroError);
 
-    int tempLeft, tempRight, tempFront;
+    int tempLeft, tempRight, tempFront, tempLeftBack, tempRightBack;
     tempLeft = lidarLeft.read();
     tempRight = lidarRight.read();
     tempFront = lidarFront.read();
+    tempLeftBack = lidarLeftBack.read();
+    tempRightBack = lidarRightBack.read();
 
-    if (tempLeft == 0 || tempRight == 0 || tempFront == 0) {
+    if (tempLeft == 0 || tempRight == 0 || tempFront == 0 || tempLeftBack == 0 || tempRightBack == 0) {
         EPRINT("LIDAR ERROR");
     }
 
     distLeft = tempLeft <= 0 ? distLeft : tempLeft;
     distRight = tempRight <= 0 ? distLeft : tempRight;
     distFront = tempFront <= 0 ? distLeft : tempFront;
+    distLeftBack = tempLeftBack <= 0 ? distLeft : tempLeftBack;
+    distRightBack = tempRightBack <= 0 ? distLeft : tempRightBack;
 
     distLeftCorr = distLeft * cos(RAD(ANGLE_360_TO_180(relativeAngle)));
     distRightCorr = distRight * cos(RAD(ANGLE_360_TO_180(relativeAngle)));
     distFrontCorr = distFront * cos(RAD(ANGLE_360_TO_180(relativeAngle)));
+    distLeftBackCorr = distLeftBack * cos(RAD(ANGLE_360_TO_180(relativeAngle)));
+    distRightBackCorr = distRightBack * cos(RAD(ANGLE_360_TO_180(relativeAngle)));
 
     innerDistCorr = isClockwise ? distRightCorr : distLeftCorr;
     innerDist = isClockwise ? distRight : distLeft;
     outerDistCorr = isClockwise ? distLeftCorr : distRightCorr;
     outerDist = isClockwise ? distLeft : distRight;
+    innerDistBackCorr = isClockwise ? distRightBackCorr : distLeftBackCorr;
+    innerDistBack = isClockwise ? distRightBack : distLeftBack;
 }
 
 void turn(float angle, float direction = 0) { // direction = 0 -> turn shortest way, direction = 1 -> turn clockwise, direction = -1 -> turn anticlockwise
