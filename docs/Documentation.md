@@ -7,7 +7,8 @@
     6. The steering axle was designed to be as close as possible to the drive axle to minimise the turning radius, while allowing sufficient space for the steering wheels to rotate freely.
        ![../attachments/Pasted image 20230824165650.png](../attachments/Pasted%20image%2020230824165650.png)
     7. Given that $\text{Turn radius} \approx D\tan({90\degree-\theta\degree})$, where $D$ is the distance between the steering and driving axle, and $\theta$ is the steering angle, minimising $D$ would be ideal. ![[../attachments/Pasted image 20230829184645.png]]
-    8. The baseplate, upper plate, and PCB were designed to be connected via M3 standoffs, which allowed for flexibility in adjusting the height, and made swapping components easier.
+    8. 
+    9. The baseplate, upper plate, and PCB were designed to be connected via M3 standoffs, which allowed for flexibility in adjusting the height, and made swapping components easier.
 2. Power and Sense
     1. The vehicle is powered off a single 3-cell Lithium Polymer (LiPo) battery, which allows for high peak current draw in excess of 10A and is easy to design around, given its rectangular shape.
     2. Power passes through a 5V regulator before being distributed to the servo, sensors and Raspberry Pi Pico used as a microcontroller.
@@ -15,4 +16,4 @@
     4. Block detection is done through an OpenMV M7 mounted on the front of the vehicle. It is quite easy to interface with and was easy to use, given the libraries provided with the OpenMV IDE.
 3. Obstacle management
     1. For the open round, the vehicle attempts to maintain a fixed distance from the inner wall. 2 LiDARs, mounted at the front and rear of the vehicle, face the inner wall and are used to gauge the vehicle's proximity and angle with respect to the wall. Corners are detected based on the disparity between the 2 LiDAR readings with the LiDARs.
-    2. For the obstacle round, the vehicle uses the OpenMV M4 to detect the colour (and thus the direction), and the distance of the closest block. Once the block is close enough, the OpenMV sends a command the the Pico. The Pico then performs 4 turns to evade the block and afterwards, return to the initial path.![[../attachments/path.png]]
+    2. For the obstacle round, the vehicle uses the OpenMV M4 to detect the colour (and thus the direction), and the distance of the closest block. Once the block is close enough, the OpenMV sends a command the the Pico. The Pico then performs 4 turns to evade the block and afterwards, return to the initial path.
