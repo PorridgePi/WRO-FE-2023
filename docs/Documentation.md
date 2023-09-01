@@ -51,7 +51,7 @@ The gearbox attached to the motor was mounted inline with the motor which reduce
 
 We purchased the motor before deciding on which motor driver to use to power the motor. Unbeknownst to us at that time, this was a bad idea. Instead, we should have decided on a motor driver, before finding a suitable motor.
 
-After making the purchase for the motor, we started looking for a suitable motor driver. To do so, we have to find the maximum current which the motor would run at, which would be the stalling current. However, this is where the nightmare began. There was conflicting information for the motor, even different pages (motor in a kit set, and motor individually) from the same manufacturer (YFROBOT) had different information about the motor. Then, generalising the search to the generic motor itself (the GM25-370), we discovered even more conflicting information.
+After making the purchase for the motor, we started looking for a suitable motor driver. To do so, we have to find the maximum current which the motor would run at, which would be the stalling current. However, this is where the nightmare began. There was conflicting information for the motor, even different pages (motor in a kit set info page, and individual motor info page) from the same manufacturer (YFROBOT) had different information about the motor. Then, generalising the search to the generic motor itself (the GM25-370), we discovered even more conflicting information.
 
 In the end, we decided to take the highest stalling current that we could find on the internet, so that our motor driver would not just burn up immediately when the motor stalls. The value was 4A at 8.4V, and 6A at 12V.
 
@@ -74,11 +74,23 @@ Given that $\text{Turn radius} \approx D\tan({90\degree-\theta\degree})$, where 
 The chassis was designed to use articulated steering, which allowed for larger steering angles while keeping the steering mechanism relatively simple. 
    ![../attachments/articulated-steering.png](../attachments/articulated-steering.png)
 
+
+i mean the current design is articulated steering just that basically one side has nothing
+
+and the other wise has the rest of the bot
+like in b is shows it being split in the middle
+but in ours its basically split at the servo and theres almost nothing on the other side
+
+
 The baseplate, upper plate, and PCB were designed to be connected via M3 standoffs, which allowed for flexibility in adjusting the height, and made swapping components easier.
 
 # 3. Power and Sense
 
 ## Power
+
+2. Power passes through a 5V regulator before being distributed to the servo, sensors and Raspberry Pi Pico used as a microcontroller.
+
+
 - 12V LiPo battery powers:
     - Motor driver to supply power to the single motor
     - Voltage regulator that outputs 5V with a maximum sustained current of 4A
@@ -108,6 +120,7 @@ Inputs
 - Encoder: digital HIGH/LOW signals
 Outputs
 - Motor driver: PWM signal
+- Servo: A form of PWM signal, using the Arduino `Servo` library
 
 # Choice of Components
 
@@ -130,12 +143,58 @@ The Raspberry Pi Pico was chosen for various reasons:
 
 ## Distance ranging sensor - LiDAR
 
+LiDAR was chosen instead of alternative such as ultrasonic sensor due to its accuracy. Ultrasonic sensors, from past experience, have always been very unreliable, with values jumping around frequently, or even the entire sensor malfunctioning and causing the entire I2C bus to hang.
+
+Besides, ultrasonic sensors may not work as well as LiDAR in this game field, where long distance ranging is required, and the field is huge (3m by 3m). Ultrasonic sensors may also interfere with each other, especially when we need to use multiple of them.
+
+While LiDAR readings may not be entirely foolproof, and still prone to errors due to reflectivity of the target object, it is mostly accurate for our use.
+
+Additionally, we have LiDAR sensors available on hand, and we have prior experience working with them, so it was a natural choice.
+
+The layout of the LiDAR was decided.
+
+3. Front and side facing LiDARs are used to measure the distance to the walls. The TFLunas used have a maximum range of 2m which is sufficient for detecting the side walls but may at times not have enough especially for the front facing LiDAR.
+
 ## Battery
+
+1. The vehicle is powered off a single 3-cell Lithium Polymer (LiPo) battery, which allows for high peak current draw in excess of 10A and is easy to design around, given its rectangular shape.
+
+18650 was considered 
+did not need a high voltage like the 12V LiPo we had, and it could be charged more easily
+
+and we even purchased a carrier board for testing and prototyping
+however, concerns over the overcurrent protection (2A built-in) and 
+lack of time in designing custom carrier board with protection
+
+size was larger than a lipo
+
+many lipo around readily available, from use in other competitions
+
+
+decided against 18650, and went with lipo instead in the end.
 
 ## Camera
 
+1. Block detection is done through an OpenMV M7 mounted on the front of the vehicle. It is quite easy to interface with and was easy to use, given the libraries provided with the OpenMV IDE.
+2. We were initially considering using a Raspberry Pi Camera Module but decided against it as it had issues with latency.
+
+
+1. [[Raspberry Pi Camera]] with [[OpenCV]]
+2. OpenMV but we no have
+3. Pixy
+
+- Dual/Stereo Cameras
+
 ## PCB
 
+While prototyping, we realised that we require the use of many sensors.
+
+three main solutions exist, 
+and connecting them via jumper wires would not be reliable, while soldering by hand using protoboards would take too much time.
+
+We decided to design and make a PCB, since
+
+Manufacturing with JLCPCB was cheap and quick. Compared to the time needed for other solutions
 
 Here are some renders of the PCB.
 
@@ -150,13 +209,6 @@ Back:
 Below is the schematics for the PCB. (A full image is available on GitHub too under `schemes/`)
 
 ![../attachments/Schematics.png](../attachments/Schematics.png)
-
-
-1. The vehicle is powered off a single 3-cell Lithium Polymer (LiPo) battery, which allows for high peak current draw in excess of 10A and is easy to design around, given its rectangular shape.
-2. Power passes through a 5V regulator before being distributed to the servo, sensors and Raspberry Pi Pico used as a microcontroller.
-3. Front and side facing LiDARs are used to measure the distance to the walls. The TFLunas used have a maximum range of 2m which is sufficient for detecting the side walls but may at times not have enough especially for the front facing LiDAR.
-4. Block detection is done through an OpenMV M7 mounted on the front of the vehicle. It is quite easy to interface with and was easy to use, given the libraries provided with the OpenMV IDE.
-5. We were initially considering using a Raspberry Pi Camera Module but decided against it as it had issues with latency.
 
 # 4. Obstacle management
 

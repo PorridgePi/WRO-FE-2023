@@ -30,17 +30,6 @@
 
 - Website: [Ackerman Steering](http://datagenetics.com/blog/december12016/index.html)
 
-
-# Motor Driver
-- ???????
-
-# Camera
-1. [[Raspberry Pi Camera]] with [[OpenCV]]
-2. OpenMV but we no have
-3. Pixy
-
-- Dual/Stereo Cameras
-
 # Ranging/Localisation
 - LiDAR
 - Camera
