@@ -14,7 +14,7 @@ Team Members
 
 # Overview
 
-Welcome to the GitHub repository for Team `FE0901` participating in WRO 2023. In this competition, we are building an autonomous robotic vehicle capable of completing 2 different challenges. This README provides a simple overview. If you wish to delve deeper into our engineering process, please check out our [Engineering Journal](Engineering%20Journal.md) or [download it as PDF](https://github.com/PorridgePi/WRO-FE-2023/blob/main/docs/Engineering%20Journal.pdf).
+Welcome to the GitHub repository for Team `FE0901` participating in WRO 2023. In this competition, we are building an autonomous robotic vehicle capable of completing 2 different challenges. This README provides a simple overview. If you wish to delve deeper into our engineering process, please check out our [Engineering Journal](docs/Engineering%20Journal.md) or [download it as PDF](https://github.com/PorridgePi/WRO-FE-2023/blob/main/docs/Engineering%20Journal.pdf).
 
 ## Demo
 
