@@ -12,7 +12,21 @@ Team Members
 
 # Overview
 
-Welcome to the GitHub repository for Team `FE0901` participating in WRO 2023. In this competition, we are building an autonomous robotic vehicle capable of completing 2 different challenges. This README provides an overview of our project. If you wish to delve deeper into our engineering process, please check out our [Engineering Journal](Engineering%20Journal.md) or [download it as PDF](https://github.com/PorridgePi/WRO-FE-2023/blob/main/docs/Engineering%20Journal.pdf).
+Welcome to the GitHub repository for Team `FE0901` participating in WRO 2023. In this competition, we are building an autonomous robotic vehicle capable of completing 2 different challenges. This README provides a simple overview. If you wish to delve deeper into our engineering process, please check out our [Engineering Journal](Engineering%20Journal.md) or [download it as PDF](https://github.com/PorridgePi/WRO-FE-2023/blob/main/docs/Engineering%20Journal.pdf).
+
+## Demo
+
+A demonstration video of our robot in action can be found on YouTube (or in the [video.md](video/video.md) file): [https://youtu.be/pbWbQL5pThI](https://youtu.be/pbWbQL5pThI)
+
+[![Watch the video](https://img.youtube.com/vi/pbWbQL5pThI/hqdefault.jpg)](https://www.youtube.com/embed/pbWbQL5pThI)
+
+### Key Timestamps
+Open Challenge
+- Run 1: [00:03](https://youtu.be/pbWbQL5pThI&t=3)
+- Runs 2 & 3: [01:15](https://youtu.be/pbWbQL5pThI&t=75)
+
+Obstacle Challenge:
+- Run 1: [03:40](https://youtu.be/pbWbQL5pThI&t=221)
 
 # Usage
 For Code, Using Visual Studio Code:
@@ -21,8 +35,14 @@ For Code, Using Visual Studio Code:
 - Initialise Git submodule(s): `git submodule update --init --recursive`
 - Open the repository in VSCode: `code ./`
 - Install the PlatformIO plugin
-- Use the PlatformIO plugin to compile and upload code onto the microcontroller
-- Upload code onto OpenMV using the [OpenMV IDE](https://openmv.io/pages/download)
+- Select the appropriate PlatformIO Environment
+- Use the PlatformIO plugin to compile and upload code onto the microcontroller (Raspberry PI Pico)
+
+For Camera (OpenMV): Using the [OpenMV IDE](https://openmv.io/pages/download)
+- Open the camera code (`src/omv_main.py`) in OpenMV IDE
+- Upload code onto OpenMV by:
+    - Select `Tools` Menu
+    - Click `Save open script onto OpenMV Cam (as main.py)`
 
 For Documentation, Using [Obsidian](https://obsidian.md/):
 - Clone this repository: `git clone https://github.com/PorridgePi/WRO-FE-2023`
@@ -66,12 +86,21 @@ For PCB, Using [KiCAD](https://www.kicad.org/):
 3. Clean wheels to ensure grip
 
 # Hardware used
-* **Motor:** 1x GM25-12CPR 
-* **Servo:** 1x MG996R
-* **Motor Driver:** 1x AT8236
-* **Microcontroller:** 1x Raspberry Pi Pico
-* **Voltage Regulator (5V):** 1x CKCS-BK-2
-* **LiDAR:** 5x TFLuna
-* **Camera:** OpenMV M7
-* **Compass:** GY-273/271
-* **Battery:** Nano-tech 1300mAh 3S LiPo
+- *Motor:** 1x GM25-12CPR 
+- **Servo:** 1x MG996R
+- **Motor Driver:** 1x AT8236
+- **Microcontroller:** 1x Raspberry Pi Pico
+- **Voltage Regulator (5V):** 1x CKCS-BK-2
+- **LiDAR:** 5x TFLuna
+- **Camera:** OpenMV M7
+- **Compass:** GY-273/271
+- **Battery:** Nano-tech 1300mAh 3S LiPo
+
+# Continual Integration (CI) Testing
+
+We have a simple CI testing setup with GitHub Actions, using the `scripts/ci.sh` script to automate the process of building our code for all different environments in `platformio.ini`. It checks for build success and ensures that the code can be successfully compiled.
+
+CI is a critical aspect of our development process. It allows us to detect issues and errors in our codebase as soon as they occur. This early detection is invaluable in preventing the accumulation of errors and simplifying debugging.
+
+Besides, our project involves multiple team members working collaboratively. CI ensures that all code changes made by different team members do not introduce regressions or break existing functionality.
+
