@@ -34,6 +34,9 @@ Team Members:
 | LiPo Battery      | Turnigy      | Nano-tech 1300mAh 3S 45~90C |        |                                                                                                                                                                                                                                                                                                                                     |
 |                   |              |                             |        |                                                                                                                                                                                                                                                                                                                                     |
 
+## Components Wiring Diagram
+
+![../attachments/wiring-diagram.png](../attachments/wiring-diagram.png)
 
 # 2. Mobility Management
 
@@ -45,7 +48,7 @@ The motor is mounted to the vehicle using an included metal bracket, and placed 
 
 The gearbox attached to the motor was mounted inline with the motor which reduced the vertical space taken up by the motor, at the expense of restricting the possible orientations in can be mounted.
 
-![[../attachments/gear-box.png]]
+![../attachments/gear-box.png](../attachments/gear-box.png)
 
 ### Motor Driver
 
@@ -230,7 +233,7 @@ Below is the schematics for the PCB. (A full image is available on GitHub too un
 
 ## Obstacle Challenge
 
-![[../attachments/obstacle-challenge-logic.png]]
+![../attachments/obstacle-challenge-logic.png](../attachments/obstacle-challenge-logic.png)
 
 1. For the obstacle round, blocks were detected using the blob identification library that came with the OpenMV software.
    ![../attachments/block_detection.png](../attachments/block_detection.png)
