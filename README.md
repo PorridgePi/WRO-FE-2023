@@ -1,5 +1,7 @@
 # WRO 2023 Future Engineers
 
+[![PlatformIO CI](https://github.com/PorridgePi/WRO-FE-2023/actions/workflows/platformio-ci.yml/badge.svg?branch=main)](https://github.com/PorridgePi/WRO-FE-2023/actions/workflows/platformio-ci.yml)
+
 # Team Information
 
 Team ID: `FE0901`
