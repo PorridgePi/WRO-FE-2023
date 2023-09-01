@@ -51,7 +51,7 @@ The gearbox attached to the motor was mounted inline with the motor which reduce
 
 We purchased the motor before deciding on which motor driver to use to power the motor. Unbeknownst to us at that time, this was a bad idea. Instead, we should have decided on a motor driver, before finding a suitable motor.
 
-After making the purchase for the motor, we started looking for a suitable motor driver. To do so, we have to find the maximum current which the motor would run at, which would be the stalling current. However, this is where the nightmare began. There was conflicting information for the motor, even different pages (motor in a kit set info page, and individual motor info page) from the same manufacturer (YFROBOT) had different information about the motor. Then, generalising the search to the generic motor itself (the GM25-370), we discovered even more conflicting information.
+After making the purchase for the motor, we started looking for a suitable motor driver. To do so, we have to find the maximum current which the motor would run at, which would be the stalling current. However, this is where the nightmare began. There was conflicting information for the motor, even from the same distributor (motor sold as a kit vs the motor alone had different specs). Then, generalising the search to the generic motor itself (the GM25-370), we discovered even more conflicting information.
 
 In the end, we decided to take the highest stalling current that we could find on the internet, so that our motor driver would not just burn up immediately when the motor stalls. The value was 4A at 8.4V, and 6A at 12V.
 
@@ -145,9 +145,9 @@ The Raspberry Pi Pico was chosen for various reasons:
 
 LiDAR was chosen instead of alternative such as ultrasonic sensor due to its accuracy. Ultrasonic sensors, from past experience, have always been very unreliable, with values jumping around frequently, or even the entire sensor malfunctioning and causing the entire I2C bus to hang.
 
-Besides, ultrasonic sensors may not work as well as LiDAR in this game field, where long distance ranging is required, and the field is huge (3m by 3m). Ultrasonic sensors may also interfere with each other, especially when we need to use multiple of them.
+Besides, ultrasonic sensors may not work as well as LiDAR in this game field, where long distance ranging is required, and the field is huge (3m by 3m). Ultrasonic sensors also tend to interfere with each other, especially when we multiple need to be used simultaneously like in our case.
 
-While LiDAR readings may not be entirely foolproof, and still prone to errors due to reflectivity of the target object, it is mostly accurate for our use.
+While the LiDAR readings may not be entirely foolproof, and still subject to the reflectivity of the target object, they suffice for our use.
 
 Additionally, we have LiDAR sensors available on hand, and we have prior experience working with them, so it was a natural choice.
 
