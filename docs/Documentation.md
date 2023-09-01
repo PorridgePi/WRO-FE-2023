@@ -147,13 +147,13 @@ LiDAR was chosen instead of alternative such as ultrasonic sensor due to its acc
 
 Besides, ultrasonic sensors may not work as well as LiDAR in this game field, where long distance ranging is required, and the field is huge (3m by 3m). Ultrasonic sensors also tend to interfere with each other, especially when we multiple need to be used simultaneously like in our case.
 
-While the LiDAR readings may not be entirely foolproof, and still subject to the reflectivity of the target object, they suffice for our use.
+While the LiDAR readings may not be entirely foolproof, and are still subject to the reflectivity of the target object, they will suffice for our use.
 
-Additionally, we have LiDAR sensors available on hand, and we have prior experience working with them, so it was a natural choice.
+Additionally, we had LiDAR sensors available on hand, and we have prior experience working with them, so it was a natural choice.
 
-The layout of the LiDAR was decided.
+Initially, we were only intending on using 3 LiDARs - 2 facing left and right, and one facing forward - however we had issues with detecting corners and decided to install another pair of side facing LiDARs towards the rear. By comparing the reading from the 2 LiDARs, we were able to determine when a corner occured as the first LiDAR would no longer be detecting the wall while the rear LiDAR still was, fi
 
-3. Front and side facing LiDARs are used to measure the distance to the walls. The TFLunas used have a maximum range of 2m which is sufficient for detecting the side walls but may at times not have enough especially for the front facing LiDAR.
+The TFLunas used have a maximum range of 2m which is sufficient for detecting the side walls but may at times not have enough especially for the front facing LiDAR.
 
 2 lidar to estimate heading based on wall, compared with the compass reading to detect when the 2 lidars are not both detecting a same side of the same wall (i.e. there is a corner)
 
