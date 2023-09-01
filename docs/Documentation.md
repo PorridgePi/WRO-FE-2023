@@ -155,6 +155,8 @@ The layout of the LiDAR was decided.
 
 3. Front and side facing LiDARs are used to measure the distance to the walls. The TFLunas used have a maximum range of 2m which is sufficient for detecting the side walls but may at times not have enough especially for the front facing LiDAR.
 
+2 lidar to estimate heading based on wall, compared with the compass reading to detect when the 2 lidars are not both detecting a same side of the same wall (i.e. there is a corner)
+
 ## Battery
 
 1. The vehicle is powered off a single 3-cell Lithium Polymer (LiPo) battery, which allows for high peak current draw in excess of 10A and is easy to design around, given its rectangular shape.
@@ -169,7 +171,6 @@ lack of time in designing custom carrier board with protection
 size was larger than a lipo
 
 many lipo around readily available, from use in other competitions
-
 
 decided against 18650, and went with lipo instead in the end.
 
