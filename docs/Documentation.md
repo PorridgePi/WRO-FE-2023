@@ -14,6 +14,9 @@
     2. Power passes through a 5V regulator before being distributed to the servo, sensors and Raspberry Pi Pico used as a microcontroller.
     3. Front and side facing LiDARs are used to measure the distance to the walls. The TFLunas used have a maximum range of 2m which is sufficient for detecting the side walls but may at times not have enough especially for the front facing LiDAR.
     4. Block detection is done through an OpenMV M7 mounted on the front of the vehicle. It is quite easy to interface with and was easy to use, given the libraries provided with the OpenMV IDE.
+    5. We were initially considering using a Raspberry Pi Camera Module but decided against it as it had issues with latency.
 3. Obstacle management
     1. For the open round, the vehicle attempts to maintain a fixed distance from the inner wall. 2 LiDARs, mounted at the front and rear of the vehicle, face the inner wall and are used to gauge the vehicle's proximity and angle with respect to the wall. Corners are detected based on the disparity between the 2 LiDAR readings with the LiDARs.
-    2. For the obstacle round, the vehicle uses the OpenMV M4 to detect the colour (and thus the direction), and the distance of the closest block. Once the block is close enough, the OpenMV sends a command the the Pico. The Pico then performs 4 turns to evade the block and afterwards, return to the initial path.
+    2. For the obstacle round, coloured blocks were detected using the blob identification library that came with the OpenMV software.![[../attachments/Pasted image 20230901130434.png]]
+    3. The closest block if first identified based on all the blobs in the camera's view.
+    5. Once the closest block falls below a preset Y threshold, the OpenMV sends a command the the Pico. The Pico then performs 4 turns to evade the block and afterwards, return to the initial path.![[../attachments/Pasted image 20230901131442.png]]
