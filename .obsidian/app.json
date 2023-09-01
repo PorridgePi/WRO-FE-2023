@@ -9,5 +9,12 @@
   ],
   "newLinkFormat": "relative",
   "newFileLocation": "folder",
-  "newFileFolderPath": "docs"
+  "newFileFolderPath": "docs",
+  "pdfExportSettings": {
+    "includeName": false,
+    "pageSize": "A4",
+    "landscape": false,
+    "margin": "0",
+    "downscalePercent": 100
+  }
 }
