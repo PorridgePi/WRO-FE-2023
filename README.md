@@ -9,6 +9,8 @@ Team Members
 - [Yikun](https://github.com/PorridgePi)
 - [Zachary](https://github.com/Zachareeeeee)
 
+# Overview
+
 # Usage
 
 For Code, Using Visual Studio Code:
@@ -60,8 +62,10 @@ For Documentation, Using [Obsidian](https://obsidian.md/):
 * **Motor:** 1x GM25-12CPR 
 * **Servo:** 1x MG996R
 * **Motor Driver:** 1x AT8236
-* Microcontroller: 1x Raspberry Pi Pico
-* Voltage Regulator (5V): 1x CKCS-BK-2
-* LiDAR: 5x TFLuna
-* Camera: OpenMV M7
-* Compass: GY-273/271
+* **Microcontroller:** 1x Raspberry Pi Pico
+* **Voltage Regulator (5V):** 1x CKCS-BK-2
+* **LiDAR:** 5x TFLuna
+* **Camera:** OpenMV M7
+* **Compass:** GY-273/271
+* **Battery:** Nano-tech 1300mAh 3S LiPo
+
