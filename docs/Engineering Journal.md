@@ -1,11 +1,4 @@
-# Contents
-1. Hardware Overview
-2. Mobility Management
-3. Power and Sense
-4. Obstacle Management
-5. Code Style Guidelines
-
-# Introduction
+# Engineering Jounral
 
 Team ID: `FE0901`
 
@@ -15,9 +8,26 @@ Team Members:
 - Zhou Yikun
 - Zachary Ang
 
+<div style="page-break-after: always;"></div>
+
+
+# Contents
+1. Hardware Overview
+2. Mobility Management
+3. Power and Sense
+4. Obstacle Management
+5. Code Style Guidelines
+
+<div style="page-break-after: always;"></div>
+
+# Introduction
+
+
 A copy of this Engineering Journal can also be found on [GitHub](https://github.com/PorridgePi/WRO-FE-2023/blob/main/docs/Engineering%20Journal.md).
 
 Other notes that we took are also found in the `docs/` subdirectory.
+
+<div style="page-break-after: always;"></div>
 
 # 1. Hardware Overview
 
@@ -40,6 +50,8 @@ Other notes that we took are also found in the `docs/` subdirectory.
 ## Components Wiring Diagram
 
 ![../attachments/wiring-diagram.png](../attachments/wiring-diagram.png)
+
+<div style="page-break-after: always;"></div>
 
 # 2. Mobility Management
 
@@ -90,6 +102,8 @@ Above is an illustration of articulated steering on the left (b), and typical Ac
 Our robot's design is articulated steering, just that one side of the steering does not have anything while the other has the rest of the components. In (b), it is showing the vehicle being split in the middle, but in our design, the vehicle is basically split at the servo and theres almost nothing on the other side.
 
 Overall, we have standardised all holes to be M3 sized, so different components, including the baseplate, upper plate, and PCB, can be connected via M3 standoffs. This allowed for flexibility in adjusting the height, and made swapping components easier.
+
+<div style="page-break-after: always;"></div>
 
 # 3. Power and Sense
 
@@ -225,6 +239,8 @@ Below is the schematics for the PCB. (A full image is available on GitHub too un
 
 ![../attachments/Schematics.png](../attachments/Schematics.png)
 
+<div style="page-break-after: always;"></div>
+
 # 4. Obstacle management
 
 ## Open Challenge
@@ -244,6 +260,8 @@ Below is the schematics for the PCB. (A full image is available on GitHub too un
 3. Once the closest block falls below a preset Y threshold, the OpenMV sends a command the the Pico. The Pico then performs 4 turns to evade the block and afterwards, return to the initial path.
    ![../attachments/block-avoidance.png](../attachments/block-avoidance.png)
 
+
+<div style="page-break-after: always;"></div>
 
 # 5. Code Style Guidelines
 
