@@ -93,10 +93,10 @@ For PCB, Using [KiCAD](https://www.kicad.org/):
 - **Motor Driver:** 1x AT8236
 - **Microcontroller:** 1x Raspberry Pi Pico
 - **Voltage Regulator (5V):** 1x CKCS-BK-2
-- **LiDAR:** 5x TFLuna
-- **Camera:** OpenMV M7
-- **Compass:** GY-273/271
-- **Battery:** Nano-tech 1300mAh 3S LiPo
+- **LiDAR:** 5x TF-Luna
+- **Camera:** 1x OpenMV M7
+- **Compass:** 1x GY-273 and 1x GY-271
+- **Battery:** 1x Turnigy nano-tech 1300mAh 3S 45~90C Lipo Pack
 
 # Continual Integration (CI) Testing
 
@@ -106,4 +106,8 @@ CI is a critical aspect of our development process. It allows us to detect issue
 
 Besides, our project involves multiple team members working collaboratively. CI ensures that all code changes made by different team members do not introduce regressions or break existing functionality.
 
-To check the state of our CI, go to the [`Actions` tab](https://github.com/PorridgePi/WRO-FE-2023/actions) and view the workflow runs. If everything is going well, you should be only seeing green ticks. However, if you are seeing red crosses, something is up, but don't fret, we are definitely working hard to iron out the bugs!
+To check the status of our CI, go to the [`Actions` tab](https://github.com/PorridgePi/WRO-FE-2023/actions) and view the workflow runs. If everything is going well, you should be only seeing green ticks. However, if you are seeing red crosses, something is up, but don't fret, we are definitely working hard to iron out the bugs!
+
+(or alternatively, just look at the badge below for the CI status)
+
+[![PlatformIO CI](https://github.com/PorridgePi/WRO-FE-2023/actions/workflows/platformio-ci.yml/badge.svg?branch=main)](https://github.com/PorridgePi/WRO-FE-2023/actions/workflows/platformio-ci.yml)
