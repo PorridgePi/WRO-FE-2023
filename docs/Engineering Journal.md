@@ -199,7 +199,7 @@ We also considered using a Raspberry Pi Camera Module, but after some trial and 
 
 Finally, we arrived at our choice - the OpenMV M7. We had several of them on hand, and could start testing it immediately.
 
-Compared to the power-hungry OpenCV, OpenMV is hence highly optimised for efficiency, thus reducing latency which is key in robotics competitions. Besides, OpenMV is tightly integrated with the OpenMV camera hardware, and provides a simplified interface in the form of the OpenMV IDE, which was way easier to use than setting up OpenCV from scratch on the Raspberry Pi.
+Compared to the power-hungry OpenCV, OpenMV is highly optimised for efficiency, thus reducing latency which is key in robotics competitions. Besides, OpenMV is tightly integrated with the OpenMV camera hardware, and provides a simplified interface in the form of the OpenMV IDE, which was way easier to use than setting up OpenCV from scratch on the Raspberry Pi.
 
 We eventually settled on mounting an OpenMV M7 on the front of the vehicle, pointing slightly downwards to increase the field of view below the camera.
 
