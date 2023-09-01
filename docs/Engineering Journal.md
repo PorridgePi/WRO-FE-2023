@@ -15,7 +15,7 @@ Team Members:
 - Zhou Yikun
 - Zachary Ang
 
-A copy of this Engineering Journal can also be found on [GitHub]().
+A copy of this Engineering Journal can also be found on [GitHub](https://github.com/PorridgePi/WRO-FE-2023/blob/main/docs/Engineering%20Journal.md).
 
 Other notes that we took are also found in the `docs/` subdirectory.
 
@@ -35,8 +35,7 @@ Other notes that we took are also found in the `docs/` subdirectory.
 | Camera            | OpenMV       | M7                          | 1      |                                                                                                                                                                                                                                                                                                                                     |     |
 | Compass           | -            | GY-273                      | 1      | Labelled HMC5883L, using QMC5883L                                                                                                                                                                                                                                                                                                   |     |
 | Compass           | -            | GY-271                      | 1      | Uses QMC5883L                                                                                                                                                                                                                                                                                                                       |     |
-| LiPo Battery      | Turnigy      | Nano-tech 1300mAh 3S 45~90C |        |                                                                                                                                                                                                                                                                                                                                     |     |
-                                                                                                                                                                                                            |     |
+| LiPo Battery      | Turnigy      | Nano-tech 1300mAh 3S 45~90C |        |                                                                                                                                                                                                                                                                                                                                     |     |                                                                                                                                                                                                            |     |
 
 ## Components Wiring Diagram
 
