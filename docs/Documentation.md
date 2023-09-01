@@ -16,10 +16,12 @@
     4. Block detection is done through an OpenMV M7 mounted on the front of the vehicle. It is quite easy to interface with and was easy to use, given the libraries provided with the OpenMV IDE.
     5. We were initially considering using a Raspberry Pi Camera Module but decided against it as it had issues with latency.
 3. Obstacle management
-    1. For the open round, the vehicle attempts to maintain a fixed distance from the inner wall. 2 LiDARs, mounted at the front and rear of the vehicle, face the inner wall and are used to gauge the vehicle's proximity and angle with respect to the wall. Corners are detected based on the disparity between the 2 LiDAR readings with the LiDARs.
-    2. For the obstacle round, coloured blocks were detected using the blob identification library that came with the OpenMV software.![[../attachments/Pasted image 20230901130434.png]]
-    3. The closest block if first identified based on all the blobs in the camera's view.
-    4. Once the closest block falls below a preset Y threshold, the OpenMV sends a command the the Pico. The Pico then performs 4 turns to evade the block and afterwards, return to the initial path.![[../attachments/Pasted image 20230901131442.png]]
+    1. For the open round, the vehicle attempts to maintain a fixed distance from the inner wall. 2 LiDARs, mounted at the front and rear of the vehicle, face the inner wall and are used to gauge the vehicle's proximity and angle with respect to the wall. Corners are detected based on the disparity between the 2 LiDAR readings with the LiDARs, with the forward LiDARs detecting the sudden increase in range before the rear LiDARs.
+    2. When the vehicle is started, it measures the range to the front and sides to get its start position, which is used to determine its starting section.
+    3. For the obstacle round, coloured blocks were detected using the blob identification library that came with the OpenMV software.![[../attachments/Pasted image 20230901130434.png]]
+    4. The all the green and red blobs are compared and the block whose centroid lies the lowest in the camera's frame is used as the closest block.
+    5. Once the closest block falls below a preset Y threshold, the OpenMV sends a command the the Pico. The Pico then performs 4 turns to evade the block and afterwards, return to the initial path.![[../attachments/Pasted image 20230901131442.png]]
+    6. 
 
 # Code Style Guidelines
 - Annotate code where possible.
