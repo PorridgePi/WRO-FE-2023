@@ -1,4 +1,4 @@
-- on [[2023-04-26]], checked out:
+w- on [[2023-04-26]], checked out:
     - [Raspberry Pi and PiCam setup (headless)](https://gist.github.com/sageworksstudio/b0954d2d6cfac7d4a00e776953324a2c)
     - [Connect the Camera Module | Getting started with the Camera Module](https://projects.raspberrypi.org/en/projects/getting-started-with-picamera/2)
 - [[2023-05-03]]
