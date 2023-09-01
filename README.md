@@ -63,4 +63,5 @@ For Documentation, Using [Obsidian](https://obsidian.md/):
 * Microcontroller: 1x Raspberry Pi Pico
 * Voltage Regulator (5V): 1x CKCS-BK-2
 * LiDAR: 5x TFLuna
-* Ca
+* Camera: OpenMV M7
+* Compass: GY-273/271
