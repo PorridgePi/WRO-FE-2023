@@ -157,30 +157,21 @@ The TFLunas used have a maximum range of 2m which is sufficient for detecting th
 
 ## Battery
 
-1. The vehicle is powered off a single 3-cell Lithium Polymer (LiPo) battery, which allows for high peak current draw in excess of 10A and is easy to design around, given its rectangular shape.
+The vehicle is powered off a single 3-cell Lithium Polymer (LiPo) battery, which allows for high peak current draw in excess of 10A.
 
-While we considered using 18650 batteries since 12V was unnecessary, we ultimately decided against it.
+While we considered using 18650 batteries, since 12V was unnecessary, we ultimately decided against it.
 
-We invested in a carrier board while testing the 18650s but it increased the footprint of the batteries and lacked the convenience of a simple XT60 connector, making swapping batteries harder. On top of that, the 2A overcurrent protection severely limited our max current.
+We invested in a carrier board while testing the 18650s but it increased the footprint of the batteries and lacked the convenience of a simple XT60 connector, making swapping batteries harder. On top of that, the 2A overcurrent protection severely limited the hardware we could use.
 
-
-
-did not need a high voltage like the 12V LiPo we had, and it could be charged more easily
-
-and we even purchased a carrier board for testing and prototyping
-however, concerns over the overcurrent protection (2A built-in) and 
-lack of time in designing custom carrier board with protection
-
-size was larger than a lipo
-
-many lipo around readily available, from use in other competitions
-
-decided against 18650, and went with lipo instead in the end.
+On the other hand, we had many LiPos, was capable of handling plenty of current, and were rectangular, which made designing the bot around them much easier.
 
 ## Camera
 
 1. Block detection is done through an OpenMV M7 mounted on the front of the vehicle. It is quite easy to interface with and was easy to use, given the libraries provided with the OpenMV IDE.
+   
 2. We were initially considering using a Raspberry Pi Camera Module but decided against it as it had issues with latency.
+   
+3. We also had used PixyCams before but did not enjoy the lack of ability to write your own image processing algorithms.
 
 
 1. [[Raspberry Pi Camera]] with [[OpenCV]]
@@ -193,7 +184,7 @@ decided against 18650, and went with lipo instead in the end.
 
 While prototyping, we realised that we require the use of many sensors.
 
-three main solutions exist, 
+We initially used bread boards
 and connecting them via jumper wires would not be reliable, while soldering by hand using protoboards would take too much time.
 
 We decided to design and make a PCB, since
