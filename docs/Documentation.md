@@ -19,4 +19,15 @@
     1. For the open round, the vehicle attempts to maintain a fixed distance from the inner wall. 2 LiDARs, mounted at the front and rear of the vehicle, face the inner wall and are used to gauge the vehicle's proximity and angle with respect to the wall. Corners are detected based on the disparity between the 2 LiDAR readings with the LiDARs.
     2. For the obstacle round, coloured blocks were detected using the blob identification library that came with the OpenMV software.![[../attachments/Pasted image 20230901130434.png]]
     3. The closest block if first identified based on all the blobs in the camera's view.
-    5. Once the closest block falls below a preset Y threshold, the OpenMV sends a command the the Pico. The Pico then performs 4 turns to evade the block and afterwards, return to the initial path.![[../attachments/Pasted image 20230901131442.png]]
+    4. Once the closest block falls below a preset Y threshold, the OpenMV sends a command the the Pico. The Pico then performs 4 turns to evade the block and afterwards, return to the initial path.![[../attachments/Pasted image 20230901131442.png]]
+
+# Code Style Guidelines
+- Annotate code where possible.
+- Delete unused code unless intended for immediate use.
+- Avoid long equations, ie. break them down into a few statements.
+- Naming:
+    - `PascalCase` for class names.
+    - `camelCase` for normal variable names.
+    - `UPPER_SNAKE_CASE` for definitions.
+    - Capitalise acronyms.
+- OOP

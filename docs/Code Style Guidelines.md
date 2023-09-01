@@ -1,9 +1,0 @@
-- Annotate code where possible.
-- Delete unused code unless intended for immediate use.
-- Avoid long equations, ie. break them down into a few statements.
-- Naming:
-    - `PascalCase` for class names.
-    - `camelCase` for normal variable names.
-    - `UPPER_SNAKE_CASE` for definitions.
-    - Capitalise acronyms.
-- OOP <3

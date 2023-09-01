@@ -16,4 +16,3 @@
     - suitable voltage - closest to most common voltage used by components
     - 18650 - 2x3.7V?
     - if really needed - check conversion efficiency of voltage regulator
-- 
