@@ -86,7 +86,7 @@ For PCB, Using [KiCAD](https://www.kicad.org/):
 3. Clean wheels to ensure grip
 
 # Hardware used
-- *Motor:** 1x GM25-12CPR 
+- **Motor:** 1x GM25-12CPR 
 - **Servo:** 1x MG996R
 - **Motor Driver:** 1x AT8236
 - **Microcontroller:** 1x Raspberry Pi Pico
