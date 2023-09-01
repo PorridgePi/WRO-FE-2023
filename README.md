@@ -104,3 +104,4 @@ CI is a critical aspect of our development process. It allows us to detect issue
 
 Besides, our project involves multiple team members working collaboratively. CI ensures that all code changes made by different team members do not introduce regressions or break existing functionality.
 
+To check the state of our CI, go to the [`Actions` tab](https://github.com/PorridgePi/WRO-FE-2023/actions) and view the workflow runs. If everything is going well, you should be only seeing green ticks. However, if you are seeing no red crosses, something is up, but don't fret, we are definitely working hard to iron out the bugs!
