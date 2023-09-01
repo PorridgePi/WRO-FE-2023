@@ -6,8 +6,11 @@
 
 // Use in combination with https://www.desmos.com/calculator/jvlm9fmemt
 
-// MechaQMC5883 imu(Wire, -28, 46.5, 1.35667791828, -89.8894438815);
-MechaQMC5883 imu(Wire, 0, 0, 0, 0);
+MechaQMC5883 imu(Wire, 165, 60, 1.28710882619, -88.1088452983);
+// MechaQMC5883 imu(Wire, 0, 0, 0, 0);
+MechaQMC5883 imu1(Wire1, -96, -221, 1.95970583558, 48.003770227);
+// MechaQMC5883 imu1(Wire1, 0, 0, 0, 0);
+
 
 void setup() {
     Serial.begin(9600);
@@ -23,10 +26,13 @@ void setup() {
     
     imu.init();
     imu.tare();
+    imu1.init();
+    imu1.tare();
 }
 
 void loop() {
     imu.printRaw();
+    // imu1.printRaw();
     // Serial.println(imu.readAngle());
     delay(10);
 }
