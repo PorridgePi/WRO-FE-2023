@@ -4,6 +4,7 @@
 import sensor, image, time, math, pyb, struct
 from pyb import UART
 uart = UART(1, 9600)
+uart.init(9600, bits=8, parity=None, stop=1, timeout_char=1000)
 # Color Tracking Thresholds (L Min, L Max, A Min, A Max, B Min, B Max)
 # The below thresholds track in general red/green things. You may wish to tune them...
 redThreshold = [(25, 55, 13, 65, -3, 34)]
@@ -11,7 +12,7 @@ greenThreshold = [(0, 100, -128, -24, -20, 48)]
 # You may pass up to 16 thresholds above. However, it's not really possible to segment any
 # scene with 16 thresholds before color thresholds start to overlap heavily.
 EDGE_THRESHOLD = 80
-TURN_TRIGGER_DISTANCE = 130
+TURN_TRIGGER_DISTANCE = 100
 OFFSET_MULTIPLIER = 0.4
 
 sensor.reset()
@@ -60,15 +61,15 @@ while(True):
 #    offset = (-1 if closestBlobIsRed else 1) * OFFSET_MULTIPLIER * closestBlob[1]
     print(closestBlob)
     if (closestBlob[0] < EDGE_THRESHOLD or closestBlob[0] > width-EDGE_THRESHOLD) :
-
         if closestBlob[1] > TURN_TRIGGER_DISTANCE:
-            command = 0b00000000
             if closestBlobIsRed:
-                command | 0b00000001
-            if closestBlob[0] < 0.5 * width:
-                command | 0b00000010
+                command = 1
+            else:
+                command = 0
+#            if closestBlob[0] < 0.5 * width:
+#                command + 2
             print(command)
-            uart.write(bin(command))
+            uart.writechar(command)
 
 
     img.draw_line(EDGE_THRESHOLD, 0, EDGE_THRESHOLD, height)
