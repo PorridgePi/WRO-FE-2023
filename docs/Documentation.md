@@ -151,17 +151,20 @@ While the LiDAR readings may not be entirely foolproof, and are still subject to
 
 Additionally, we had LiDAR sensors available on hand, and we have prior experience working with them, so it was a natural choice.
 
-Initially, we were only intending on using 3 LiDARs - 2 facing left and right, and one facing forward - however we had issues with detecting corners and decided to install another pair of side facing LiDARs towards the rear. By comparing the reading from the 2 LiDARs, we were able to determine when a corner occured as the first LiDAR would no longer be detecting the wall while the rear LiDAR still was, fi
+Initially, we were only intending on using 3 LiDARs - 2 facing left and right, and one facing forward - however we had issues with detecting corners and decided to install another pair of side facing LiDARs towards the rear. By comparing the reading from the 2 LiDARs, we were able to determine when a corner occured as the first LiDAR would no longer be detecting the wall while the rear LiDAR still was, fixing the corner detection issue.
 
 The TFLunas used have a maximum range of 2m which is sufficient for detecting the side walls but may at times not have enough especially for the front facing LiDAR.
-
-2 lidar to estimate heading based on wall, compared with the compass reading to detect when the 2 lidars are not both detecting a same side of the same wall (i.e. there is a corner)
 
 ## Battery
 
 1. The vehicle is powered off a single 3-cell Lithium Polymer (LiPo) battery, which allows for high peak current draw in excess of 10A and is easy to design around, given its rectangular shape.
 
-18650 was considered 
+While we considered using 18650 batteries since 12V was unnecessary, we ultimately decided against it.
+
+We invested in a carrier board while testing the 18650s but it increased the footprint of the batteries and lacked the convenience of a simple XT60 connector, making swapping batteries harder. On top of that, the 2A overcurrent protection severely limited our max current.
+
+
+
 did not need a high voltage like the 12V LiPo we had, and it could be charged more easily
 
 and we even purchased a carrier board for testing and prototyping
