@@ -19,7 +19,8 @@
 Button button(PIN_BUTTON_A, PIN_BUTTON_B);
 Motor motor(PIN_MOTOR_A, PIN_MOTOR_B);
 DriveServo servo(PIN_SERVO);
-MechaQMC5883 imu(Wire, -7.5, 64, 1.33294029345, 89.5173413224);
+MechaQMC5883 imu(Wire, 165, 60, 1.28710882619, -88.1088452983);
+MechaQMC5883 imu1(Wire1, -96, -221, 1.95970583558, 48.003770227);
 Lidar lidarFront(Wire, 0x10);
 Lidar lidarLeft(Wire1, 0x11);
 Lidar lidarLeftBack(Wire1, 0x10);
@@ -56,26 +57,65 @@ float lidarHeading = 0;
 //// IMU
 float trueAngle = 0, trueAngleZeroError = 0; // relative to the start i.e. 0 <= x < 360
 float relativeAngle = 0, relativeAngleZeroError = 0; // relative to each side i.e. 0 <= x < 90
+bool useIMU1 = false;
 
 //// Misc
-float headingDiff = 0;
+float headingDiff = 0;  // if headingDiff > 0, front LiDAR greater than back LiDAR, if headingDiff < 0, back LiDAR greater than front LiDAR
 
 void correctToRelativeZero() {
     turnRatio = -1 * constrain(ANGLE_360_TO_180(relativeAngle) / 30, -1, 1);
 }
 
+float readIMU1Angle() {
+    // return LIM_ANGLE(360 - imu1.readAngle());
+    return imu1.readAngle();
+}
+
 void relativeAngleTare(float diff = 0) {
-    relativeAngleZeroError = LIM_ANGLE(imu.readAngle() + diff);
+    if (useIMU1) {
+        relativeAngleZeroError = LIM_ANGLE(readIMU1Angle() + diff);
+    } else {
+        relativeAngleZeroError = LIM_ANGLE(imu.readAngle() + diff);
+    }
 }
 
 void trueAngleZeroTare(float diff = 0) {
-    trueAngleZeroError = LIM_ANGLE(imu.readAngle() + diff);
+    if (useIMU1) {
+        trueAngleZeroError = LIM_ANGLE(readIMU1Angle()  + diff);
+    } else {
+        trueAngleZeroError = LIM_ANGLE(imu.readAngle() + diff);
+    }
+}
+
+bool isBlockRed = false;
+bool isCameraPresent = false;
+unsigned long lastCameraUpdate = millis();
+
+void readCamera() {
+    if (Serial1.available()) {
+        byte buffer = Serial1.read();
+        buffer = buffer & 0b001111;
+        if (buffer == 0 || buffer == 1) {
+            lastCameraUpdate = millis();
+            isBlockRed = buffer;
+            isCameraPresent = true;
+        } else {
+            isCameraPresent = false;
+        }
+    } else {
+        isCameraPresent = false;
+    }
 }
 
 void update() {
+    readCamera();
+
     encoderDistance = encoder.readDistance();
 
     float tempAngle = imu.readAngle();
+    if (useIMU1) {
+        tempAngle = readIMU1Angle();
+    }
     trueAngle = LIM_ANGLE(tempAngle - trueAngleZeroError);
     relativeAngle = LIM_ANGLE(trueAngle - currentSide * 90);
 
@@ -116,6 +156,7 @@ void update() {
     }
 
     headingDiff = ANGLE_360_TO_180(DELTA_ANGLE(relativeAngle, lidarHeading));
+    headingDiff = headingDiff * (isClockwise ? -1 : 1);
 
     // DPRINT(innerDist);
     // DPRINT(distRightBack);
@@ -124,20 +165,18 @@ void update() {
     // DPRINT(headingDiff);
 }
 
-void turn(float angle, float direction = 0.0f, float error = 1.0f) { // direction = 0 -> turn shortest way, direction = 1 -> turn clockwise, direction = -1 -> turn anticlockwise
-    const float MIN_TURN_RATIO = 0.5;
-
+void turn(float angle, float direction = 0.0f, float error = 1.0f, float minTurnRatio = 0.0f) { // direction = 0 -> turn shortest way, direction = 1 -> turn clockwise, direction = -1 -> turn anticlockwise
     update();
     float targetAngle = LIM_ANGLE(trueAngle + angle);
     while (abs(trueAngle - targetAngle) > error) {
         update();
-        digitalWrite(PIN_LED, HIGH);
+        // digitalWrite(PIN_LED, HIGH);
         turnRatio = constrain(ANGLE_360_TO_180(DELTA_ANGLE(trueAngle, targetAngle))/30.0f, -1, 1);
         if (direction != 0) {
             turnRatio = abs(turnRatio) * direction;
         }
-        if (abs(turnRatio) < MIN_TURN_RATIO) {
-            turnRatio = turnRatio > 0 ? MIN_TURN_RATIO : -1 * MIN_TURN_RATIO;
+        if (abs(turnRatio) < minTurnRatio) {
+            turnRatio = turnRatio > 0 ? minTurnRatio : -1 * minTurnRatio;
         }
 
         EPRINT("turning...");
@@ -148,13 +187,18 @@ void turn(float angle, float direction = 0.0f, float error = 1.0f) { // directio
     }
 }
 
-void moveStraight(float distance, float speed = SPEED) {
+void moveStraight(float distance, float speed = SPEED, bool isCorrectionEnabled = false) {
     update();
     float targetDistance = encoderDistance + distance;
     while (abs(encoderDistance - targetDistance) > 0.5) {
         digitalWrite(PIN_LED, HIGH);
         update();
-        turnRatio = 0;
+        
+        if (isCorrectionEnabled) {
+            correctToRelativeZero();
+        } else {
+            turnRatio = 0;
+        }
         speed = SPEED * (encoderDistance < targetDistance ? 1 : -1) * DIRECTION;
 
         EPRINT("moving...");
@@ -187,6 +231,48 @@ void setupComponents() {
     // IMU
     imu.init();
     imu.tare();
+    imu1.init();
+    imu1.tare();
     
     encoder.begin();
+    
+    // Camera UART Serial
+    Serial1.setTX(PIN_SERIAL1_TX);
+    Serial1.setRX(PIN_SERIAL1_RX);
+    Serial1.begin(9600);
+}
+
+
+void setup() {
+    setupComponents();
+    Serial.begin(115200);
+
+    servo.turn(1);
+    delay(200);
+    servo.turn(-1);
+    delay(200);
+    servo.turn(0);
+
+    isClockwise = false;
+}
+
+void setup1() {
+    delay(500);
+}
+
+
+void loop1() {
+    if (imu.isError) {
+        useIMU1 = true;
+        blinkLED(100);
+        if (imu1.isError) {
+            blinkLED(500);
+        }
+    } else {
+        blinkLED(50);
+        useIMU1 = false;
+    }
+    servo.turn(turnRatio * DIRECTION);
+    motor.setSpeed(speed * DIRECTION);
+    delay(1);
 }

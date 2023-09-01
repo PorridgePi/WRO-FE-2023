@@ -2,19 +2,6 @@
 
 #define MAX_CORNER_COUNT 12
 
-void setup() {
-    setupComponents();
-    servo.turn(1);
-    delay(500);
-    servo.turn(-1);
-    delay(500);
-    servo.turn(0);
-    Serial.begin(115200);
-}
-
-void setup1() {
-    delay(1500);
-}
 
 void loop() {
     update();
@@ -84,14 +71,12 @@ void loop() {
                 } case 100: { // narrow left turn
                     speed = SPEED;
                     turn(-60);
-                    // moveStraight(3);
                     turn(60);
                     case1 = 0;
                     break;
                 } case 110: { // narrow right turn
                     speed = SPEED;
                     turn(60);
-                    // moveStraight(3);
                     turn(-60);
                     case1 = 0;
                     break;
@@ -119,29 +104,20 @@ void loop() {
                 case -1: { // initiate turn
                     cornerCount++;
                     currentSide = POS_MOD(currentSide + (isClockwise ? 1 : -1), 4);
-                    if (cornerCount >= MAX_CORNER_COUNT) { // move straight until allign
-                        float initialDistOuter = isClockwise ? initialDistLeft : initialDistRight;
-                        while (distFront - initialDistOuter > TURNING_RADIUS) {
-                            update();
-                            speed = SPEED;
-                            turnRatio = 0;
-                        }
-                    }
                     turn(currentSide * 90 - trueAngle, isClockwise ? 1 : -1);
                     case2 = 0;
                     break;
                 } case 0: { // move straight until wall detected
-                    if (innerDist < 70 && innerDistBack < 70) { // wall detected, change state // min to prevent false positive
+                    if (abs(headingDiff) < 45 && innerDist < 70 && innerDistBack < 70) { // wall detected, change state // min to prevent false positive
                         case2 = -1; // reset case2
                         if (cornerCount >= MAX_CORNER_COUNT) {
                             caseMain = 4; // END
                         } else {
-                            moveStraight(20);
                             caseMain = 3; // next caseMain
                         }
                     } else {
                         speed = SPEED;
-                        turnRatio = 0;
+                        correctToRelativeZero();
                     }
                     break;
                 }
@@ -158,13 +134,24 @@ void loop() {
                 } case 0: {
                     EPRINT(headingDiff)
                     EPRINT(innerDist);
-                    if (abs(headingDiff) > 45 || innerDist > 100 || innerDistBack > 100) { // wall missing, change state
+                    EPRINT("CASE3")
+
+                    if (headingDiff > 45) { // wall missing, change state
+                        if (cornerCount < MAX_CORNER_COUNT - 1) { // if not reaching last corner
+                            moveStraight(10, true);
+                        } else { // last corner - move straight until allign
+                            float initialDistOuter = isClockwise ? initialDistLeft : initialDistRight;
+                            while (distFront - initialDistOuter > TURNING_RADIUS) {
+                                update();
+                                speed = SPEED;
+                                turnRatio = 0;
+                            }
+                        }
                         while (abs(ANGLE_360_TO_180(relativeAngle)) > 3) { // face straight before turning
                             update();
                             correctToRelativeZero();
                             digitalWrite(PIN_LED, HIGH);
                         }
-                        moveStraight(15);
 
                         case3 = -1; // reset case3
                         caseMain = 2; // next caseMain
@@ -185,23 +172,9 @@ void loop() {
                             turnRatio *= (isClockwise ? 1 : -1); // clockwise -> turn right, anticlockwise -> turn left
 
                             static float MAX_ANGLE = 30;
-                            float turnRatioMaxMultiplier = constrain((MAX_ANGLE - abs(ANGLE_360_TO_180(relativeAngle))) / MAX_ANGLE, 0, 1);
-                            bool toRestrict = false;
-                            if (error > 0) { // too far - allow turning in clockwise direction, restrict not clockwise
-                                if (isClockwise && turnRatio < 0) {
-                                    toRestrict = true;
-                                } else if (!isClockwise && turnRatio > 0) {
-                                    toRestrict = true;
-                                }
-                            } else { // too near - restrict turning in clockwise direction
-                                if (isClockwise && turnRatio > 0) {
-                                    toRestrict = true;
-                                } else if (!isClockwise && turnRatio < 0) {
-                                    toRestrict = true;
-                                }
-                            }
-
-                            if (toRestrict) {
+                            float tempRelativeAngle = ANGLE_360_TO_180(relativeAngle);
+                            if (tempRelativeAngle / turnRatio > 0) { // if they have the same sign, restrict turning
+                                float turnRatioMaxMultiplier = constrain((MAX_ANGLE - abs(ANGLE_360_TO_180(relativeAngle))) / MAX_ANGLE, 0, 1);
                                 turnRatio *= turnRatioMaxMultiplier;
                             }
                         }
@@ -215,12 +188,16 @@ void loop() {
             static int case4 = -1;
             switch (case4) {
                 case -1: {
+                    float initialDistance = encoderDistance;
                     while (abs(ANGLE_360_TO_180(relativeAngle)) > 3) { // face straight before continuing
                         update();
                         correctToRelativeZero();
                         digitalWrite(PIN_LED, HIGH);
                     }
-                    while (distFront - initialDistFront > 5) {
+                    float targetDistance = distFront - initialDistFront;
+                    while (distFrontCorr - initialDistFront > 5 || encoderDistance - initialDistance < targetDistance - 30) {
+                        EPRINT(distFront - initialDistFront)
+                        EPRINT("AAAAAA")
                         float initialDistOuter = isClockwise ? initialDistLeft : initialDistRight;
                         float initialDistInner = isClockwise ? initialDistRight : initialDistLeft;
                         float MIN_WALL_DISTANCE = initialDistInner;
@@ -236,24 +213,10 @@ void loop() {
                         turnRatio = powf(abs(error), 1.0f) * (error > 0 ? 1 : -1);
                         turnRatio *= (isClockwise ? 1 : -1); // clockwise -> turn right, anticlockwise -> turn left
 
-                        static float MAX_ANGLE = 30;
-                        float turnRatioMaxMultiplier = constrain((MAX_ANGLE - abs(ANGLE_360_TO_180(relativeAngle))) / MAX_ANGLE, 0, 1);
-                        bool toRestrict = false;
-                        if (error > 0) { // too far - allow turning in clockwise direction, restrict not clockwise
-                            if (isClockwise && turnRatio < 0) {
-                                toRestrict = true;
-                            } else if (!isClockwise && turnRatio > 0) {
-                                toRestrict = true;
-                            }
-                        } else { // too near - restrict turning in clockwise direction
-                            if (isClockwise && turnRatio > 0) {
-                                toRestrict = true;
-                            } else if (!isClockwise && turnRatio < 0) {
-                                toRestrict = true;
-                            }
-                        }
-
-                        if (toRestrict) {
+                        static float MAX_ANGLE = 10;
+                        float tempRelativeAngle = ANGLE_360_TO_180(relativeAngle);
+                        if (tempRelativeAngle / turnRatio > 0) { // if they have the same sign, restrict turning
+                            float turnRatioMaxMultiplier = constrain((MAX_ANGLE - abs(ANGLE_360_TO_180(relativeAngle))) / MAX_ANGLE, 0, 1);
                             turnRatio *= turnRatioMaxMultiplier;
                         }
                     }
@@ -294,13 +257,8 @@ void loop() {
     DPRINT(turnRatio);
 
     // DPRINT(encoderDistance);
-
+    // EPRINT(imu.readAngle());
+    // EPRINT(readIMU1Angle());
+    EPRINT(imu.readAngle() - readIMU1Angle() );
     Serial.println();
-}
-
-void loop1() {
-    blinkLED();
-    servo.turn(turnRatio * DIRECTION);
-    motor.setSpeed(speed * DIRECTION);
-    delay(1);
 }
