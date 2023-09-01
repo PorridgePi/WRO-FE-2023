@@ -34,3 +34,8 @@
     - `UPPER_SNAKE_CASE` for definitions.
     - Capitalise acronyms.
 - OOP
+
+# Schematics and PCB
+![../attachments/Schematics.png](../attachments/Schematics.png)
+![../attachments/PCB_Front.png](../attachments/PCB_Front.png)
+![../attachments/PCB_Back.png](../attachments/PCB_Front.png)
