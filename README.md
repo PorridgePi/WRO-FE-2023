@@ -56,3 +56,4 @@ For Documentation, Using [Obsidian](https://obsidian.md/):
 2. Ensure steering mechanism is tightened
 3. Clean wheels to ensure grip
 
+# Hardware used
