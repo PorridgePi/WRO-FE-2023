@@ -117,7 +117,7 @@ In greater detail:
     - if really needed - check conversion efficiency of voltage regulator
 
 
-# Communication
+## Communication
 
 Various sensors, and the camera, communicate with the main microcontroller, Raspberry Pi Pico, via multiple protocols.
 
@@ -133,9 +133,9 @@ Outputs
 - Motor driver: PWM signal
 - Servo: A form of PWM signal, using the Arduino `Servo` library
 
-# Choice of Components
+## Choice of Components
 
-## Microcontroller
+### Microcontroller
 
 The Raspberry Pi Pico was chosen for various reasons:
 - Affordability
@@ -153,7 +153,7 @@ The Raspberry Pi Pico was chosen for various reasons:
 - Size
     - Despite Pico's small size, it still packs in a lot of capabilities
 
-## Distance ranging sensor - LiDAR
+### Distance ranging sensor - LiDAR
 
 LiDAR was chosen instead of alternative such as ultrasonic sensor due to its accuracy. Ultrasonic sensors, from past experience, have always been very unreliable, with values jumping around frequently, or even the entire sensor malfunctioning and causing the entire I2C bus to hang.
 
@@ -167,7 +167,7 @@ Initially, we were only intending on using 3 LiDARs - 2 facing left and right, a
 
 The TFLunas used have a maximum range of 2m which is sufficient for detecting the side walls but may at times not have enough especially for the front facing LiDAR.
 
-## Battery
+### Battery
 
 The vehicle is powered off a single 3-cell Lithium Polymer (LiPo) battery, which allows for high peak current draw in excess of 10A.
 
@@ -177,7 +177,7 @@ We invested in a carrier board while testing the 18650s but it increased the foo
 
 On the other hand, we had many LiPos, was capable of handling plenty of current, and were rectangular, which made designing the bot around them much easier.
 
-## Camera
+### Camera
 
 After some initial research, we shortlisted 3 main choices for a camera.
 
@@ -185,17 +185,17 @@ After some initial research, we shortlisted 3 main choices for a camera.
 2. Raspberry Pi Camera with OpenCV
 3. OpenMV
 
-### PixyCam
+#### PixyCam
 
 We had used PixyCams before but did not enjoy the lack of ability to write your own image processing algorithms. Sometimes the inbuilt algorithm simply could not recognise the colour you pick out via the UI, and you cannot do anything about it but to try and select the colour again.
 
 Hence, we eliminated the PixyCam as a possibility.
 
-### Raspberry Pi Camera
+#### Raspberry Pi Camera
 
 We also considered using a Raspberry Pi Camera Module, but after some trial and error, our inexperience with writing code in OpenCV, as well as the difficulties in setting up a fully functional OpenCV environment on a full-fledged Linux distribution led us to our final decision against using it.
 
-### OpenMV
+#### OpenMV
 
 Finally, we arrived at our choice - the OpenMV M7. We had several of them on hand, and could start testing it immediately.
 
@@ -205,7 +205,7 @@ We eventually settled on mounting an OpenMV M7 on the front of the vehicle, poin
 
 On a side note, we did consider dual/stereo cameras, and try out Simultaneous Localisation and Mapping (SLAM), but eventually decided not to due to its complexity.
 
-## PCB
+### PCB
 
 While prototyping, we realised that we require the use of many sensors. We initially used bread boards to connect the microcontroller to the peripherals. We realised that connecting them via jumper wires would not be reliable. An alternative was to solder by hand using protoboards, but that would take too much time.
 
