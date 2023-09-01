@@ -13,7 +13,6 @@ Team Members
 
 
 # Usage
-
 For Code, Using Visual Studio Code:
 - Clone this repository: `git clone https://github.com/PorridgePi/WRO-FE-2023`
 - Change directory: `cd ./WRO-FE-2023/`
@@ -69,4 +68,3 @@ For Documentation, Using [Obsidian](https://obsidian.md/):
 * **Camera:** OpenMV M7
 * **Compass:** GY-273/271
 * **Battery:** Nano-tech 1300mAh 3S LiPo
-
