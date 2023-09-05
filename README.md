@@ -64,7 +64,6 @@ For PCB, Using [KiCAD](https://www.kicad.org/):
     - `WRO_2023`: PCB files that can be opened in KiCAD
 - `scripts/`: Scripts for PlatformIO
     - `ci.sh`: Script for CI test
-    - `extra_scripts.py`: Extra scripts for PlatformIO (run before and after build - [Documentation](https://docs.platformio.org/en/latest/scripting/actions.html))
 - `src/`: Main code
     - `lib/`: Libraries for components
         - Notably:
