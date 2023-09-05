@@ -64,7 +64,7 @@ while(True):
     closestBlobIsRed = True
     width = img.width()
     height = img.height()
-    closestBlob = [int(width/2),0,0]
+    closestBlob = [int(width/2), 0] # could potentially compare by size (due to image bug, but defeats purpose)
 
 #    for blob in img.find_blobs(redThreshold, roi=lROI):
 #        print(blob)
