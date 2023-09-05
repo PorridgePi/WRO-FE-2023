@@ -18,7 +18,7 @@
 Button button(PIN_BUTTON_A, PIN_BUTTON_B);
 Motor motor(PIN_MOTOR_A, PIN_MOTOR_B);
 DriveServo servo(PIN_SERVO);
-MechaQMC5883 imu(Wire, 165, 60, 1.28710882619, -88.1088452983);
+MechaQMC5883 imu(Wire, 35, 50.5, 1.33725559029, 88.0917555825); 
 MechaQMC5883 imu1(Wire1, -96, -221, 1.95970583558, 48.003770227);
 Lidar lidarFront(Wire, 0x10);
 Lidar lidarLeft(Wire1, 0x11);
@@ -58,9 +58,11 @@ float lidarHeading = 0;
 float trueAngle = 0, trueAngleZeroError = 0; // relative to the start i.e. 0 <= x < 360
 float relativeAngle = 0, relativeAngleZeroError = 0; // relative to each side i.e. 0 <= x < 90
 bool useIMU1 = false;
+int currentCase = 0;
 
 //// Misc
 float headingDiff = 0; // if headingDiff > 0, front LiDAR greater than back LiDAR, if headingDiff < 0, back LiDAR greater than front LiDAR
+bool justTurned = false;
 
 void correctToRelativeZero() {
     turnRatio = -1 * constrain(ANGLE_360_TO_180(relativeAngle) / 30, -1, 1);
@@ -73,7 +75,7 @@ void faceStraight(float minAngleError = 3.0f) {
     }
 }
 
-void correctToWall(float minDistance = 0) {
+void correctToWall(float minDistance = 0, float maxAngle = 30) {
     int distDiff = innerDistCorr - minDistance;
     // -ve -> too close to inner wall (right wall if clockwise, left wall if anticlockwise)
     // -> turn left if clockwise, turn right if anticlockwise
@@ -82,10 +84,9 @@ void correctToWall(float minDistance = 0) {
     float error = constrain(distDiff / 20.0f, -1, 1);
     turnRatio = powf(abs(error), 1.0f) * (error > 0 ? 1 : -1) * (isClockwise ? 1 : -1); // clockwise -> turn right, anticlockwise -> turn left
 
-    static float MAX_ANGLE = 10;
     float tempRelativeAngle = ANGLE_360_TO_180(relativeAngle);
     if (tempRelativeAngle / turnRatio > 0) { // if they have the same sign, restrict turning
-        float turnRatioMaxMultiplier = constrain((MAX_ANGLE - abs(ANGLE_360_TO_180(relativeAngle))) / MAX_ANGLE, 0, 1);
+        float turnRatioMaxMultiplier = constrain((maxAngle - abs(ANGLE_360_TO_180(relativeAngle))) / maxAngle, 0, 1);
         turnRatio *= turnRatioMaxMultiplier;
     }
 }
@@ -107,9 +108,9 @@ void readCamera() {
     if (Serial1.available()) {
         byte buffer = Serial1.read();
         buffer = buffer & 0b001111;
-        if (buffer == 0 || buffer == 1) {
+        if (buffer >= 0 && buffer < 4) {
             lastCameraUpdate = millis();
-            isBlockRed = buffer;
+            isBlockRed = buffer % 2;
             isCameraPresent = true;
         } else {
             isCameraPresent = false;
@@ -181,11 +182,11 @@ void turn(float angle, float direction = 0.0f, float error = 1.0f, float minTurn
         if (abs(turnRatio) < minTurnRatio) {
             turnRatio = turnRatio > 0 ? minTurnRatio : -1 * minTurnRatio;
         }
-        EPRINT("turning...");
-        DPRINT(trueAngle);
-        DPRINT(targetAngle);
-        EPRINT(DELTA_ANGLE(trueAngle, targetAngle));
-        Serial.println();
+        // EPRINT("turning...");
+        // DPRINT(trueAngle);
+        // DPRINT(targetAngle);
+        // EPRINT(DELTA_ANGLE(trueAngle, targetAngle));
+        // Serial.println();
     }
 }
 
@@ -199,11 +200,11 @@ void moveStraight(float distance, bool isCorrectionEnabled = false, float target
 
         speed = targetSpeed * (encoderDistance < targetDistance ? 1 : -1);
 
-        EPRINT("moving...");
-        DPRINT(speed);
-        DPRINT(encoderDistance);
-        DPRINT(targetDistance);
-        Serial.println();
+        // EPRINT("moving...");
+        // DPRINT(speed);
+        // DPRINT(encoderDistance);
+        // DPRINT(targetDistance);
+        // Serial.println();
     }
 
     speed = targetSpeed;
@@ -292,17 +293,21 @@ void loop1() {
     // DPRINT(distRightBackCorr);
 
 
-    DPRINT(trueAngle);
-    DPRINT(relativeAngle);
-    DPRINT(speed);
-    DPRINT(turnRatio);
+    DPRINT(isCameraPresent)
+    DPRINT(isBlockRed)
 
-    DPRINT(initialOuterDist);
-    DPRINT(initialInnerDist);
+    // DPRINT(trueAngle);
+    // DPRINT(relativeAngle);
+    // DPRINT(speed);
+    // DPRINT(turnRatio);
+
+    // DPRINT(initialOuterDist);
+    // DPRINT(initialInnerDist);
 
     // DPRINT(encoderDistance);
     // EPRINT(imu.readAngle());
     // EPRINT(readIMU1Angle());
     // EPRINT(imu.readAngle() - readIMU1Angle() );
+    DPRINT(currentCase);
     Serial.println();
 }
