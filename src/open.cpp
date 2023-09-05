@@ -250,15 +250,11 @@ void loop() {
     // DPRINT(distRightBack);
     // DPRINT(distRightBackCorr);
 
-
     DPRINT(trueAngle);
     DPRINT(relativeAngle);
     // DPRINT(speed);
     DPRINT(turnRatio);
 
     // DPRINT(encoderDistance);
-    // EPRINT(imu.readAngle());
-    // EPRINT(readIMU1Angle());
-    EPRINT(imu.readAngle() - readIMU1Angle() );
     Serial.println();
 }
