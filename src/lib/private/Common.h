@@ -41,6 +41,8 @@ int cornerCount = 0;
 // Sensor Variables
 //// Encoder
 float encoderDistance = 0;
+float encDistVert = 0;
+float encDistHor = 0;
 
 //// LiDAR
 float initialDistLeft = 0, initialDistRight = 0, initialDistFront = 0, initialInnerDist = 0, initialOuterDist = 0;
@@ -120,7 +122,11 @@ void readCamera() {
 void update() {
     readCamera();
 
-    encoderDistance = encoder.readDistance();
+    int tempEncoderDistance = encoder.readDistance();
+    int tempEncoderDiff = tempEncoderDistance - encoderDistance;
+    encoderDistance = tempEncoderDistance;
+    encDistVert += tempEncoderDiff * cos(RAD(ANGLE_360_TO_180(relativeAngle)));
+    encDistHor += tempEncoderDiff * sin(RAD(ANGLE_360_TO_180(relativeAngle))) * (isClockwise ? -1 : 1);
 
     trueAngle = LIM_ANGLE(readAngle() - trueAngleZeroError);
     relativeAngle = LIM_ANGLE(trueAngle - currentSide * 90);
