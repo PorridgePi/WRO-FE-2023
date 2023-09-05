@@ -6,7 +6,7 @@
 
 // Use in combination with https://www.desmos.com/calculator/jvlm9fmemt
 
-MechaQMC5883 imu(Wire, 121, 68, 1.2336059744, 88.6456235557);
+MechaQMC5883 imu(Wire, 35, 50.5, 1.33725559029, 88.0917555825);
 // MechaQMC5883 imu(Wire, 0, 0, 0, 0);
 MechaQMC5883 imu1(Wire1, -96, -221, 1.95970583558, 48.003770227);
 // MechaQMC5883 imu1(Wire1, 0, 0, 0, 0);
