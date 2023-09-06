@@ -52,7 +52,7 @@ void loop() {
         faceStraight();
 
         currentSide = POS_MOD(currentSide + (isClockwise ? 1 : -1), 4);
-        turn(currentSide * 90 - trueAngle, isClockwise ? 1 : -1);
+        turn(currentSide * 90, isClockwise ? 1 : -1, true);
 
         while (abs(headingDiff) > 45 || innerDist > 70 || innerDistBack > 70) { // move straight until wall detected
             correctToRelativeZero();

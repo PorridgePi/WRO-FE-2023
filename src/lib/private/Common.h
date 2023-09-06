@@ -172,8 +172,10 @@ void update() {
     // DPRINT(headingDiff);
 }
 
-void turn(float angle, float direction = 0.0f, float error = 1.0f, float minTurnRatio = 0.0f, float targetSpeed = SPEED) { // direction = 0 -> turn shortest way, direction = 1 -> turn clockwise, direction = -1 -> turn anticlockwise
-    float targetAngle = LIM_ANGLE(trueAngle + angle);
+void turn(float angle, float direction = 0.0f, bool absolute = false, float error = 1.0f, float minTurnRatio = 0.0f, float targetSpeed = SPEED) { // direction = 0 -> turn shortest way, direction = 1 -> turn clockwise, direction = -1 -> turn anticlockwise
+    float targetAngle = LIM_ANGLE(angle);
+    if (!absolute) targetAngle = LIM_ANGLE(trueAngle + targetAngle);
+
     while (abs(trueAngle - targetAngle) > error) {
         // digitalWrite(PIN_LED, HIGH);
         speed = targetSpeed;
@@ -296,7 +298,7 @@ void loop1() {
     DPRINT(isCameraPresent)
     DPRINT(isBlockRed)
 
-    // DPRINT(trueAngle);
+    DPRINT(trueAngle);
     // DPRINT(relativeAngle);
     // DPRINT(speed);
     // DPRINT(turnRatio);
