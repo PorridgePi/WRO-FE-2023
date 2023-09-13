@@ -3,6 +3,13 @@
 
 #ifndef IS_PROTOBOARD
 
+#undef PIN_WIRE0_SCL
+#undef PIN_WIRE0_SDA
+#undef PIN_WIRE1_SCL
+#undef PIN_WIRE1_SDA
+#undef PIN_SERIAL1_TX
+#undef PIN_SERIAL1_RX
+
 #define WHEEL_DIAMETER 6.5 // cm
 
 #define PIN_WIRE0_SCL 13
