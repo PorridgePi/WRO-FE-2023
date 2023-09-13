@@ -17,7 +17,7 @@ void loop() {
 
   int left = 1000;
   int right = 2000;
-  int middle = 1700;
+  int middle = 1500;
 
   for (pos = left; pos <= middle; pos += 1) {
     servo.writeMicroseconds(pos);
