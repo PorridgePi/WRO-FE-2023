@@ -7,12 +7,19 @@ uart = UART(1, 9600)
 uart.init(9600, bits=8, parity=None, stop=1, timeout_char=1000)
 # Color Tracking Thresholds (L Min, L Max, A Min, A Max, B Min, B Max)
 # The below thresholds track in general red/green things. You may wish to tune them...
-redThreshold = [(15, 55, 13, 65, -3, 47)]
+#redThreshold = [(15, 55, 13, 65, -3, 47)]
+#redThreshold = [(13, 82, -16, 65, 9, 57)]
+#redThreshold = [(6, 36, 6, 46, 3, 19)]
+redThreshold = [(6, 34, 6, 26, 3, 16)]
+#redThreshold = [(6, 29, 6, 46, 3, 16)]
 # greenThreshold = [(0, 100, -29, -9, 9, 32)]
 # greenThreshold = [(0, 100, -29, -4, 6, 47)]
 # greenThreshold = [(20, 60, -45, -5, 4, 38)]
 # greenThreshold = [(20, 60, -60, 5, 5, 50)]
-greenThreshold = [(20, 60, -60, -5, 5, 50)]
+#greenThreshold = [(20, 60, -60, -5, 5, 50)]
+#greenThreshold = [(20, 60, -60, -10, 5, 50)]
+greenThreshold = [(16, 40, -35, -8, -3, 25)]
+
 # You may pass up to 16 thresholds above. However, it's not really possible to segment any
 # scene with 16 thresholds before color thresholds start to overlap heavily.
 
@@ -24,9 +31,12 @@ OFFSET_MULTIPLIER = 0.4
 sensor.reset()
 sensor.set_pixformat(sensor.RGB565)
 sensor.set_framesize(sensor.QQVGA)
+#sensor.set_framerate()
 sensor.skip_frames(time = 2000)
-sensor.set_auto_gain(False) # must be turned off for color tracking
-sensor.set_auto_whitebal(False) # must be turned off for color tracking
+sensor.set_auto_gain(False, gain_db = 2.7661) # must be turned off for color tracking
+sensor.set_auto_whitebal(False, (-6.02073, -3.25462, 1.88336)) # must be turned off for color tracking
+sensor.set_saturation(-2)
+sensor.set_framebuffers(1)
 sensor.set_vflip(True)
 
 LEDred = pyb.LED(1)
@@ -43,6 +53,7 @@ def LEDoff():
     LEDgreen.off()
     LEDblue.off()
 
+LEDoff()
 LEDwhite()
 
 clock = time.clock()
@@ -55,10 +66,25 @@ clock = time.clock()
 lROI = (0, TURN_TRIGGER_DISTANCE, EDGE_THRESHOLD, 240 - TURN_TRIGGER_DISTANCE)
 rROI = (320-EDGE_THRESHOLD, TURN_TRIGGER_DISTANCE, EDGE_THRESHOLD, 240 - TURN_TRIGGER_DISTANCE)
 
+isTakePhoto = False
+lastPhotoTaken = time.time_ns()
+TIME_INTERVAL = 2
+
 while(True):
+#    print(sensor.get_rgb_gain_db())
     clock.tick()
     img = sensor.snapshot()
     img.lens_corr(1.65)
+    if (isTakePhoto):
+        if ((time.time_ns() - lastPhotoTaken) > TIME_INTERVAL*1000*1000000):
+            lastPhotoTaken = time.time_ns()
+            img.save(str(lastPhotoTaken))
+            print("Taken!")
+            LEDwhite()
+        else:
+            LEDoff()
+        continue
+
     redBlobs = []
     greenBlobs = []
     closestBlobIsRed = True
@@ -89,7 +115,7 @@ while(True):
 #    offset = (-1 if closestBlobIsRed else 1) * OFFSET_MULTIPLIER * closestBlob[1]
 
     print(closestBlob)
-
+    # LEDwhite()
     if (closestBlob[0] < EDGE_THRESHOLD or closestBlob[0] > width-EDGE_THRESHOLD) : # x value
         if closestBlob[1] > TURN_TRIGGER_DISTANCE: # y value
             if closestBlobIsRed:
@@ -100,13 +126,15 @@ while(True):
                 LEDgreen.on()
             if closestBlob[0] < 0.5 * width: # if on the right
                 command + 2
-                LEDblue.on()
+                # LEDblue.on()
             print(command)
             uart.writechar(command)
         else:
             LEDoff()
+            # LEDwhite()
     else:
         LEDoff()
+        LEDwhite()
 #    img.draw_rectangle(lROI)
 #    img.draw_rectangle(rROI)
 
