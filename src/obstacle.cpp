@@ -1,39 +1,45 @@
 #include <Common.h>
 
 #define SPEED 0.5
-#define MIN_TURN_RATIO 1
-#define MAX_CORNER_COUNT 2
-#define TURN_ANGLE 50
+#define MIN_TURN_RATIO 0.2f
+#define MAX_CORNER_COUNT 12
+#define TURN_ANGLE 70
 #define MOVE_DISTANCE 15
 #define TURNING_RADIUS 15
 #define ROBOT_WIDTH 20
-#define MIN_ERROR 1
+// #define MIN_ERROR 1
 #define MIN_WALL_DISTANCE 43
+#define MIN_ERROR 1
+#define MIN_RESPONSE_ANGLE 30
+#define POWER 0.4
 
 void changeL(bool isLeft = true) {
-    // int dir = isLeft ? -1 : 1;
-    // turn(TURN_ANGLE * dir, 0, 1, MIN_TURN_RATIO);
-    // delay(50);
-    // moveStraight(15);
-    // delay(50);
-    // turn(-TURN_ANGLE * dir, 0, 1, MIN_TURN_RATIO);
-    // delay(50);
-    // moveStraight(10);
-
     int dir = isLeft ? -1 : 1;
-    turn(TURN_ANGLE * dir, 0, 1, MIN_TURN_RATIO);
-    moveStraight(15);
-    turn(-TURN_ANGLE * dir, 0, 1, MIN_TURN_RATIO);
-    moveStraight(10);
-    turn(-TURN_ANGLE * dir, 0, 1, MIN_TURN_RATIO);
-    moveStraight(15);
-    turn(TURN_ANGLE * dir, 0, 1, MIN_TURN_RATIO);
+
+    turn2(currentSide * 90 + TURN_ANGLE * dir, 0, true, MIN_ERROR, MIN_TURN_RATIO, SPEED, MIN_RESPONSE_ANGLE, POWER);
+    // moveStraight(5);
+    turn2(currentSide * 90 , 0, true, MIN_ERROR, MIN_TURN_RATIO, SPEED, MIN_RESPONSE_ANGLE, POWER); // face straight
+    moveStraight(5, true);
+    turn2(currentSide * 90 - TURN_ANGLE * dir, 0, true, MIN_ERROR, MIN_TURN_RATIO, SPEED, MIN_RESPONSE_ANGLE, POWER);
+    // moveStraight(5);
+    turn2(currentSide * 90, 0, true, MIN_ERROR, MIN_TURN_RATIO, SPEED, MIN_RESPONSE_ANGLE, POWER); // face straight
 }
 
 void loop() {
     start:
+        speed = 0;
+        turnRatio = 0;
         currentCase = 0;
         if (button.isPressed()) {
+            trueAngleZeroError = 0;
+            delay(100);
+            trueAngleZeroTare(trueAngle);
+            
+            // FOR DEBUG/TUNING
+            // turn2(90, 0, true, MIN_ERROR, MIN_TURN_RATIO, SPEED, MIN_RESPONSE_ANGLE, POWER); // face straight
+            // changeL(false);
+            // return;
+            
             goto initial_lane;
         } else {
             goto start;
@@ -49,6 +55,8 @@ void loop() {
 
         speed = SPEED;
 
+        justTurned = true;
+
         goto move_straight;
 
     corner_turn:
@@ -62,21 +70,26 @@ void loop() {
         
         cornerCount++;
 
-        while (distFront - 100 > TURNING_RADIUS) {
+        while (distFront > 20 + TURNING_RADIUS) {
             correctToRelativeZero();
         }
 
-        faceStraight();
+        // faceStraight();
 
         currentSide = POS_MOD(currentSide + (isClockwise ? 1 : -1), 4);
-        turn(currentSide * 90 - trueAngle, isClockwise ? 1 : -1);
+        turn2(currentSide * 90, isClockwise ? -1 : 1, true, MIN_ERROR, MIN_TURN_RATIO, SPEED, MIN_RESPONSE_ANGLE, POWER);
 
-        if (cornerCount >= MAX_CORNER_COUNT) {
-            goto finish; // END
-        } else {
-            justTurned = true;
-            goto move_straight; // wall detected, change state
-        }
+        // goto start;
+
+        // if (cornerCount >= MAX_CORNER_COUNT) {
+        //     goto finish; // END
+        // } else {
+        //     justTurned = true;
+        //     goto move_straight; // wall detected, change state
+        // }
+
+        justTurned = true;
+        goto move_straight;
 
     move_straight:
         currentCase = 3;
@@ -93,6 +106,12 @@ void loop() {
         }
 
         while (headingDiff < 45) { // wall track until corner or block 
+            if (cornerCount >= MAX_CORNER_COUNT) {
+                float initialDistance = encoderDistance;
+                float targetDistance = distFront - initialDistFront;
+                if (distFrontCorr - initialDistFront < 5 && (encoderDistance - initialDistance) > targetDistance) break;
+            }
+
             if (cornerCount == 0) { // first lane, dunno clockwise or anticlockwise
                 if (abs(distLeft - distRight) > 100) break;
             } else {
@@ -108,11 +127,20 @@ void loop() {
             if (abs(innerDistCorr - MIN_WALL_DISTANCE) <= 3) { // move straight
                 correctToRelativeZero();
             } else {
+                float distToCorrectTo = (outerDistCorr + outerDistBackCorr) / 2;
+                // correctToWall(MIN_WALL_DISTANCE, 30, distToCorrectTo);
                 correctToWall(MIN_WALL_DISTANCE, 30);
             }
+            // correctToRelativeZero();
         }
 
-        goto corner_turn; // wall missing, change state
+        if (cornerCount >= MAX_CORNER_COUNT) {
+            goto finish; // END
+        } else {
+            goto corner_turn; // wall missing, change state
+        }
+
+        // goto corner_turn; // wall missing, change state
 
     avoid_block:
         currentCase = 4;
@@ -129,13 +157,17 @@ void loop() {
     finish:
         currentCase = 5;
 
-        faceStraight();
+        // faceStraight();
 
-        float initialDistance = encoderDistance;
-        float targetDistance = distFront - initialDistFront;
-        while (distFrontCorr - initialDistFront > 5 || encoderDistance - initialDistance < targetDistance - 30) {
-            correctToWall(initialInnerDist);
-        }
+        // while (abs(headingDiff) > 45 || innerDist > 100 || innerDistBack > 100) { // move straight until wall detected
+        //     correctToRelativeZero();
+        // }
+
+        // float initialDistance = encoderDistance;
+        // float targetDistance = distFront - initialDistFront;
+        // while (distFrontCorr - initialDistFront > 5 || encoderDistance - initialDistance < targetDistance - 5) {
+        //     correctToWall(initialInnerDist);
+        // }
 
         // reset variables
         speed = 0;
