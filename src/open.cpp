@@ -5,14 +5,19 @@
 
 void loop() {
     start:
+        currentCase = 0;
+        speed = 0;
+        trueAngleZeroTare(trueAngle);
+
         if (button.isPressed()) {
+            delay(100);
             goto initial_lane;
         } else {
             goto start;
         }
 
     initial_lane:
-        trueAngleZeroTare(trueAngle);
+        currentCase = 1;
         initialDistLeft = distLeft;
         initialDistRight = distRight;
         initialDistFront = distFront;
@@ -22,12 +27,12 @@ void loop() {
         int lidarDiff = distLeftCorr - distRightCorr;
         int wideLane = distLeftCorr + distRightCorr > 60 - LIDAR_FRONT_SPACING + 15;
         if (abs(lidarDiff) > 10) { // not centred
-            turn(60 * (lidarDiff > 0 ? -1 : 1));
+            turn(60 * (lidarDiff > 0 ? -1 : 1), 0, false, 5, 0.2f);
             if (wideLane) moveStraight(10);
-            turn(60 * (lidarDiff > 0 ? 1 : -1));
+            turn(60 * (lidarDiff > 0 ? 1 : -1), 0, false, 5, 0.2f);
         }
 
-        while (abs(lidarDiff) < WALL_MISSING_DISTANCE) { // move straight until wall
+        while (abs(lidarDiff) < WALL_MISSING_DISTANCE) { // move straight until wall missing
             correctToRelativeZero();
             lidarDiff = distLeftCorr - distRightCorr;
         }
@@ -44,17 +49,29 @@ void loop() {
         if (cornerCount < MAX_CORNER_COUNT) {
             moveStraight(10, true); // if not reaching last corner
         } else {
-            while (distFront - initialOuterDist > TURNING_RADIUS) { // last corner - move straight until align
+            // faceStraight(0.5f);
+            // for (int i = 0; i < 300; i++) {
+            //     speed = 0;
+            //     digitalWrite(PIN_LED, HIGH);
+            //     delay(10);
+            // }
+            speed = 0;
+            delay(500);
+            while (distFrontCorr - initialOuterDist > TURNING_RADIUS) { // last corner - move straight until align
+                
                 correctToRelativeZero();
+                speed = 0.5 * SPEED; 
             }
+            speed = SPEED;
         }
 
-        faceStraight();
 
-        currentSide = POS_MOD(currentSide + (isClockwise ? 1 : -1), 4);
+        // BEFORE TURN
+
+        currentSide = POS_MOD(currentSide + (isClockwise ? 1 : -1), 4); 
         turn(currentSide * 90, isClockwise ? 1 : -1, true);
 
-        while (abs(headingDiff) > 45 || innerDist > 70 || innerDistBack > 70) { // move straight until wall detected
+        while (abs(headingDiff) > 45 || innerDist > 100 || innerDistBack > 100) { // move straight until wall detected
             correctToRelativeZero();
         }
 
@@ -79,12 +96,15 @@ void loop() {
         goto corner_turn; // wall missing, change state
 
     finish:
-        faceStraight();
+        // faceStraight();
 
         float initialDistance = encoderDistance;
         float targetDistance = distFront - initialDistFront;
-        while (distFrontCorr - initialDistFront > 5 || encoderDistance - initialDistance < targetDistance - 30) {
-            correctToWall(initialInnerDist);
+        while (distFrontCorr - initialDistFront > 5) {
+            digitalWrite(PIN_LED, HIGH);
+
+            // correctToWall(initialInnerDist > 5 ? initialInnerDist : 5);
+            correctToRelativeZero();
         }
 
         // reset variables
