@@ -1,0 +1,26 @@
+- [ ] Things to pack
+    - [ ] M3, M2 Screwsw
+    - [x] Backup prints (especially steering column(
+    - [ ] 3x TFLunas + Cables
+    - [ ] 2x IMUs + Cables
+    - [x] Spare Servo
+    - [x] Spare Motor
+    - [x] 2x Lego Wheels
+    - [x] Mounting Tape
+    - [ ] 4x Lipos (Total)
+    - [ ] Spare (soldered) PCB
+    - [x] Spare OpenMV
+    - [x] Hot glue gun
+    - [ ] Soldering Iron + Solder
+- [ ] Integrate block detection
+- [ ] Print backup parts
+- [x] Pack the yellow measuring tape at the end of the day (due 6 Sept, completed 5 Sept)
+- [x] START DOCUMENTING EVERYTHING (completed 28 Aug)
+- [x] Figure out how to mount a compass (away from the ferromagnetic stuff) (completed 28 Aug)
+- [x] Try to get OpenMV working? (completed 28 Aug)
+- [x] CAD pivoting mount for camera (completed 28 Aug)
+- [x] Test and set lidar I²C addresses (completed 27 July)
+- [x] Test steering servo and generate look up table for steering angles (completed 27 July)
+- [x] Get materials for gamemat (completed 27 July)
+- [x] CAD lidar mounts and start testing? (completed 20 July)
+
