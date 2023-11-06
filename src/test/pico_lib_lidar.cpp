@@ -3,7 +3,7 @@
 #include <CommonUtils.h>
 #include <Lidar.h>
 
-Lidar lidar(Wire, 0x12, 0);
+Lidar lidar(Wire1, 0x13, 0);
 
 void setup() {
     Serial.begin(115200);
